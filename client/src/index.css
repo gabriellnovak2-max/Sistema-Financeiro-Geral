@@ -1,0 +1,242 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Roboto:wght@300;400;500;700;900&display=swap');
+
+/* ============================================================
+   CONTROLE DE SAÍDA DE VENDAS
+   Sistema de Temas via CSS Variables
+   ============================================================ */
+
+/* Valores padrão (tema esmeralda) — sobrescritos pelo ThemeContext */
+:root {
+  --bg:             #0a0a0a;
+  --bg-card:        #111214;
+  --bg-sidebar:     rgba(8,8,8,0.94);
+  --border:         rgba(255,255,255,0.07);
+  --accent:         #10b981;
+  --accent-soft:    rgba(16,185,129,0.12);
+  --accent-border:  rgba(52,211,153,0.25);
+  --text:           #f5f5f5;
+  --text-muted:     rgba(255,255,255,0.4);
+  --text-accent:    #34d399;
+  --grid-line:      rgba(16,185,129,0.025);
+  --glow:           rgba(16,185,129,0.12);
+  --is-dark:        1;
+}
+
+/* ── base ── */
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Roboto', 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+  letter-spacing: -0.01em;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.03em;
+  font-weight: 600;
+}
+
+.font-display { font-family: 'Roboto', 'Inter', sans-serif; letter-spacing: -0.02em; }
+.font-mono    { font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace; }
+
+/* ── fundo animado com glow do tema ── */
+.bg-pattern {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: var(--bg);
+  transition: background 0.3s ease;
+}
+
+.bg-pattern::before {
+  content: '';
+  position: fixed;
+  bottom: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 500px;
+  background: radial-gradient(ellipse at center, var(--glow) 0%, transparent 70%);
+  z-index: -1;
+  animation: glowPulse 6s ease-in-out infinite alternate;
+  pointer-events: none;
+  transition: background 0.3s ease;
+}
+
+@keyframes glowPulse {
+  0%   { opacity: 0.7; transform: translateX(-50%) scale(1); }
+  100% { opacity: 1;   transform: translateX(-50%) scale(1.08); }
+}
+
+/* Grid lines */
+.grid-lines {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 90% 90% at 50% 100%, black 30%, transparent 80%);
+  pointer-events: none;
+  transition: background-image 0.3s ease;
+}
+
+/* ── glassmorphism ── */
+.glass {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* ── tabela ── */
+.table-valtim thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table-valtim thead th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-accent);
+  background: var(--bg);
+  padding: 0.7rem 0.75rem;
+  border-bottom: 1px solid var(--accent-border);
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  transition: background 0.3s, color 0.3s;
+}
+
+.table-valtim thead th:last-child { border-right: none; }
+
+.table-valtim tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 150ms ease;
+}
+
+.table-valtim tbody tr:hover {
+  background: var(--accent-soft);
+}
+
+.table-valtim tbody td {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.82rem;
+  vertical-align: middle;
+  white-space: nowrap;
+  border-right: 1px solid var(--border);
+  color: var(--text);
+  transition: color 0.3s;
+}
+
+.table-valtim tbody td:last-child { border-right: none; }
+
+/* ── badges de status ── */
+.badge-pago     { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
+.badge-pendente { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+.badge-parcial  { background: rgba(99,102,241,0.12); color: #a5b4fc; border: 1px solid rgba(165,180,252,0.25); }
+
+/* ── KPI cards ── */
+.kpi-value {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+/* ── sidebar links ── */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all 160ms ease;
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+.sidebar-link:hover {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.sidebar-link.active {
+  background: var(--accent-soft);
+  color: var(--text-accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+/* ── animações ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in-up { animation: fadeInUp 0.35s ease forwards; }
+.animate-count-up   { animation: countUp 0.45s ease forwards; }
+.cal-animate        { animation: fadeInUp 0.4s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* stagger delays */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+
+/* ── Anti-rolo ── */
+@keyframes roloPulse {
+  from { opacity: 1; box-shadow: 0 0 12px rgba(239,68,68,0.4); }
+  to   { opacity: 0.75; box-shadow: 0 0 28px rgba(239,68,68,0.8); }
+}
+@keyframes roloShake {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-6px); }
+  40%     { transform: translateX(6px); }
+  60%     { transform: translateX(-4px); }
+  80%     { transform: translateX(4px); }
+}
+
+/* ── scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+::-webkit-scrollbar-thumb { background: var(--accent-soft); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ── dot pulsante ── */
+@keyframes dotPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.dot-live {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  animation: dotPulse 2s ease-in-out infinite;
+  display: inline-block;
+}
