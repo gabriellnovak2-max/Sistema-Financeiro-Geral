@@ -1,60 +1,71 @@
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import Database from "better-sqlite3";
-import { eq, desc, between, like } from "drizzle-orm";
-import { clientes, vendas, type Cliente, type InsertCliente, type Venda, type InsertVenda } from "@shared/schema";
+import { createClient } from '@supabase/supabase-js';
+import type { Cliente, InsertCliente, Venda, InsertVenda } from "@shared/schema";
 
-const sqlite = new Database("valtim.db");
-const db = drizzle(sqlite);
+const supabaseUrl = process.env.SUPABASE_URL || 'https://ekmjyubgknfssoqafxri.supabase.co';
+const supabaseKey = process.env.SUPABASE_SECRET_KEY!;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Cria tabelas se não existirem e aplica migrations seguras
-sqlite.exec(`
-  CREATE TABLE IF NOT EXISTS clientes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT NOT NULL,
-    cpf_cnpj TEXT,
-    telefone TEXT,
-    endereco TEXT
-  );
+function mapVenda(row: any): Venda {
+  return {
+    id: row.id,
+    data: row.data,
+    marca: row.marca,
+    tipoProduto: row.tipo_produto,
+    pesoPacote: row.peso_pacote,
+    quantidadeKg: row.quantidade_kg,
+    precoKg: row.preco_kg,
+    valorTotal: row.valor_total,
+    formaPagamento: row.forma_pagamento,
+    statusPagamento: row.status_pagamento,
+    clienteNome: row.cliente_nome,
+    clienteId: row.cliente_id,
+    emitirNota: row.emitir_nota,
+    observacoes: row.observacoes,
+    parcelas: row.parcelas,
+  };
+}
 
-  CREATE TABLE IF NOT EXISTS vendas (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    data TEXT NOT NULL,
-    marca TEXT NOT NULL,
-    tipo_produto TEXT NOT NULL,
-    peso_pacote TEXT NOT NULL,
-    quantidade_kg REAL NOT NULL,
-    preco_kg REAL,
-    valor_total REAL,
-    forma_pagamento TEXT,
-    status_pagamento TEXT NOT NULL DEFAULT 'pendente',
-    cliente_nome TEXT,
-    cliente_id INTEGER,
-    emitir_nota INTEGER DEFAULT 0,
-    observacoes TEXT,
-    parcelas TEXT
-  );
-`);
+function mapCliente(row: any): Cliente {
+  return {
+    id: row.id,
+    nome: row.nome,
+    cpfCnpj: row.cpf_cnpj,
+    telefone: row.telefone,
+    endereco: row.endereco,
+  };
+}
 
-// Migration segura: adiciona coluna parcelas se não existir
-try {
-  sqlite.exec(`ALTER TABLE vendas ADD COLUMN parcelas TEXT`);
-} catch (_) { /* coluna já existe */ }
+function toVendaRow(v: InsertVenda) {
+  return {
+    data: v.data,
+    marca: v.marca,
+    tipo_produto: v.tipoProduto,
+    peso_pacote: v.pesoPacote,
+    quantidade_kg: v.quantidadeKg,
+    preco_kg: v.precoKg ?? null,
+    valor_total: v.valorTotal ?? null,
+    forma_pagamento: v.formaPagamento ?? null,
+    status_pagamento: v.statusPagamento,
+    cliente_nome: v.clienteNome ?? null,
+    cliente_id: v.clienteId ?? null,
+    emitir_nota: v.emitirNota ?? false,
+    observacoes: v.observacoes ?? null,
+    parcelas: v.parcelas ?? null,
+  };
+}
 
 export interface IStorage {
-  // Vendas
-  getVendas(): Venda[];
-  getVenda(id: number): Venda | undefined;
-  createVenda(venda: InsertVenda): Venda;
-  updateVenda(id: number, venda: Partial<InsertVenda>): Venda | undefined;
-  deleteVenda(id: number): void;
-  // Clientes
-  getClientes(): Cliente[];
-  getCliente(id: number): Cliente | undefined;
-  createCliente(cliente: InsertCliente): Cliente;
-  updateCliente(id: number, cliente: Partial<InsertCliente>): Cliente | undefined;
-  deleteCliente(id: number): void;
-  // Stats
-  getStats(): {
+  getVendas(): Promise<Venda[]>;
+  getVenda(id: number): Promise<Venda | undefined>;
+  createVenda(venda: InsertVenda): Promise<Venda>;
+  updateVenda(id: number, venda: Partial<InsertVenda>): Promise<Venda | undefined>;
+  deleteVenda(id: number): Promise<void>;
+  getClientes(): Promise<Cliente[]>;
+  getCliente(id: number): Promise<Cliente | undefined>;
+  createCliente(cliente: InsertCliente): Promise<Cliente>;
+  updateCliente(id: number, cliente: Partial<InsertCliente>): Promise<Cliente | undefined>;
+  deleteCliente(id: number): Promise<void>;
+  getStats(): Promise<{
     totalVendas: number;
     totalKg: number;
     totalValor: number;
@@ -63,51 +74,104 @@ export interface IStorage {
     vendasPorDia: { data: string; valor: number; kg: number }[];
     vendasPorMarca: { marca: string; kg: number; valor: number }[];
     vendasPorPagamento: { forma: string; count: number; valor: number }[];
-  };
+  }>;
 }
 
 export const storage: IStorage = {
-  getVendas() {
-    return db.select().from(vendas).orderBy(desc(vendas.data)).all();
+  async getVendas() {
+    const { data, error } = await supabase.from('vendas').select('*').order('data', { ascending: false });
+    if (error) throw error;
+    return (data || []).map(mapVenda);
   },
-  getVenda(id) {
-    return db.select().from(vendas).where(eq(vendas.id, id)).get();
-  },
-  createVenda(venda) {
-    return db.insert(vendas).values(venda).returning().get();
-  },
-  updateVenda(id, venda) {
-    return db.update(vendas).set(venda).where(eq(vendas.id, id)).returning().get();
-  },
-  deleteVenda(id) {
-    db.delete(vendas).where(eq(vendas.id, id)).run();
-  },
-  getClientes() {
-    return db.select().from(clientes).all();
-  },
-  getCliente(id) {
-    return db.select().from(clientes).where(eq(clientes.id, id)).get();
-  },
-  createCliente(cliente) {
-    return db.insert(clientes).values(cliente).returning().get();
-  },
-  updateCliente(id, cliente) {
-    return db.update(clientes).set(cliente).where(eq(clientes.id, id)).returning().get();
-  },
-  deleteCliente(id) {
-    db.delete(clientes).where(eq(clientes.id, id)).run();
-  },
-  getStats() {
-    const todasVendas = db.select().from(vendas).all();
-    const totalVendas = todasVendas.length;
-    const totalKg = todasVendas.reduce((s, v) => s + (v.quantidadeKg || 0), 0);
-    const totalValor = todasVendas.reduce((s, v) => s + (v.valorTotal || 0), 0);
-    const totalPago = todasVendas.filter(v => v.statusPagamento === "pago").reduce((s, v) => s + (v.valorTotal || 0), 0);
-    const totalPendente = todasVendas.filter(v => v.statusPagamento === "pendente").reduce((s, v) => s + (v.valorTotal || 0), 0);
 
-    // Por dia
+  async getVenda(id) {
+    const { data, error } = await supabase.from('vendas').select('*').eq('id', id).single();
+    if (error) return undefined;
+    return data ? mapVenda(data) : undefined;
+  },
+
+  async createVenda(venda) {
+    const { data, error } = await supabase.from('vendas').insert(toVendaRow(venda)).select().single();
+    if (error) throw error;
+    return mapVenda(data);
+  },
+
+  async updateVenda(id, venda) {
+    const row: any = {};
+    if (venda.data !== undefined) row.data = venda.data;
+    if (venda.marca !== undefined) row.marca = venda.marca;
+    if (venda.tipoProduto !== undefined) row.tipo_produto = venda.tipoProduto;
+    if (venda.pesoPacote !== undefined) row.peso_pacote = venda.pesoPacote;
+    if (venda.quantidadeKg !== undefined) row.quantidade_kg = venda.quantidadeKg;
+    if (venda.precoKg !== undefined) row.preco_kg = venda.precoKg;
+    if (venda.valorTotal !== undefined) row.valor_total = venda.valorTotal;
+    if (venda.formaPagamento !== undefined) row.forma_pagamento = venda.formaPagamento;
+    if (venda.statusPagamento !== undefined) row.status_pagamento = venda.statusPagamento;
+    if (venda.clienteNome !== undefined) row.cliente_nome = venda.clienteNome;
+    if (venda.clienteId !== undefined) row.cliente_id = venda.clienteId;
+    if (venda.emitirNota !== undefined) row.emitir_nota = venda.emitirNota;
+    if (venda.observacoes !== undefined) row.observacoes = venda.observacoes;
+    if (venda.parcelas !== undefined) row.parcelas = venda.parcelas;
+    const { data, error } = await supabase.from('vendas').update(row).eq('id', id).select().single();
+    if (error) return undefined;
+    return data ? mapVenda(data) : undefined;
+  },
+
+  async deleteVenda(id) {
+    await supabase.from('vendas').delete().eq('id', id);
+  },
+
+  async getClientes() {
+    const { data, error } = await supabase.from('clientes').select('*');
+    if (error) throw error;
+    return (data || []).map(mapCliente);
+  },
+
+  async getCliente(id) {
+    const { data, error } = await supabase.from('clientes').select('*').eq('id', id).single();
+    if (error) return undefined;
+    return data ? mapCliente(data) : undefined;
+  },
+
+  async createCliente(cliente) {
+    const row = {
+      nome: cliente.nome,
+      cpf_cnpj: cliente.cpfCnpj ?? null,
+      telefone: cliente.telefone ?? null,
+      endereco: cliente.endereco ?? null,
+    };
+    const { data, error } = await supabase.from('clientes').insert(row).select().single();
+    if (error) throw error;
+    return mapCliente(data);
+  },
+
+  async updateCliente(id, cliente) {
+    const row: any = {};
+    if (cliente.nome !== undefined) row.nome = cliente.nome;
+    if (cliente.cpfCnpj !== undefined) row.cpf_cnpj = cliente.cpfCnpj;
+    if (cliente.telefone !== undefined) row.telefone = cliente.telefone;
+    if (cliente.endereco !== undefined) row.endereco = cliente.endereco;
+    const { data, error } = await supabase.from('clientes').update(row).eq('id', id).select().single();
+    if (error) return undefined;
+    return data ? mapCliente(data) : undefined;
+  },
+
+  async deleteCliente(id) {
+    await supabase.from('clientes').delete().eq('id', id);
+  },
+
+  async getStats() {
+    const { data: todasVendas } = await supabase.from('vendas').select('*');
+    const vendas = (todasVendas || []).map(mapVenda);
+
+    const totalVendas = vendas.length;
+    const totalKg = vendas.reduce((s, v) => s + (v.quantidadeKg || 0), 0);
+    const totalValor = vendas.reduce((s, v) => s + (v.valorTotal || 0), 0);
+    const totalPago = vendas.filter(v => v.statusPagamento === "pago").reduce((s, v) => s + (v.valorTotal || 0), 0);
+    const totalPendente = vendas.filter(v => v.statusPagamento === "pendente").reduce((s, v) => s + (v.valorTotal || 0), 0);
+
     const porDiaMap = new Map<string, { valor: number; kg: number }>();
-    todasVendas.forEach(v => {
+    vendas.forEach(v => {
       const d = v.data.substring(0, 10);
       const cur = porDiaMap.get(d) || { valor: 0, kg: 0 };
       porDiaMap.set(d, { valor: cur.valor + (v.valorTotal || 0), kg: cur.kg + (v.quantidadeKg || 0) });
@@ -116,18 +180,16 @@ export const storage: IStorage = {
       .map(([data, vals]) => ({ data, ...vals }))
       .sort((a, b) => a.data.localeCompare(b.data));
 
-    // Por marca
     const porMarcaMap = new Map<string, { kg: number; valor: number }>();
-    todasVendas.forEach(v => {
+    vendas.forEach(v => {
       const cur = porMarcaMap.get(v.marca) || { kg: 0, valor: 0 };
       porMarcaMap.set(v.marca, { kg: cur.kg + (v.quantidadeKg || 0), valor: cur.valor + (v.valorTotal || 0) });
     });
     const vendasPorMarca = Array.from(porMarcaMap.entries()).map(([marca, vals]) => ({ marca, ...vals }));
 
-    // Por pagamento
     const porPagMap = new Map<string, { count: number; valor: number }>();
-    todasVendas.forEach(v => {
-      const forma = v.formaPagamento || "Não informado";
+    vendas.forEach(v => {
+      const forma = v.formaPagamento || "N\u00e3o informado";
       const cur = porPagMap.get(forma) || { count: 0, valor: 0 };
       porPagMap.set(forma, { count: cur.count + 1, valor: cur.valor + (v.valorTotal || 0) });
     });
