@@ -2,7 +2,6 @@ import { pgTable, text, doublePrecision, integer, boolean, serial } from "drizzl
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Tabela de clientes
 export const clientes = pgTable("clientes", {
   id: serial("id").primaryKey(),
   nome: text("nome").notNull(),
@@ -11,7 +10,6 @@ export const clientes = pgTable("clientes", {
   endereco: text("endereco"),
 });
 
-// Tabela de vendas
 export const vendas = pgTable("vendas", {
   id: serial("id").primaryKey(),
   data: text("data").notNull(),
@@ -30,11 +28,9 @@ export const vendas = pgTable("vendas", {
   parcelas: text("parcelas"),
 });
 
-// Schemas de inser\u00e7\u00e3o
 export const insertClienteSchema = createInsertSchema(clientes).omit({ id: true });
 export const insertVendaSchema = createInsertSchema(vendas).omit({ id: true });
 
-// Tipos
 export type Cliente = typeof clientes.$inferSelect;
 export type InsertCliente = z.infer<typeof insertClienteSchema>;
 export type Venda = typeof vendas.$inferSelect;
