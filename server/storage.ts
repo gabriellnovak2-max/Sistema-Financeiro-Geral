@@ -83,19 +83,16 @@ export const storage: IStorage = {
     if (error) throw error;
     return (data || []).map(mapVenda);
   },
-
   async getVenda(id) {
     const { data, error } = await supabase.from('vendas').select('*').eq('id', id).single();
     if (error) return undefined;
     return data ? mapVenda(data) : undefined;
   },
-
   async createVenda(venda) {
     const { data, error } = await supabase.from('vendas').insert(toVendaRow(venda)).select().single();
     if (error) throw error;
     return mapVenda(data);
   },
-
   async updateVenda(id, venda) {
     const row: any = {};
     if (venda.data !== undefined) row.data = venda.data;
@@ -116,23 +113,19 @@ export const storage: IStorage = {
     if (error) return undefined;
     return data ? mapVenda(data) : undefined;
   },
-
   async deleteVenda(id) {
     await supabase.from('vendas').delete().eq('id', id);
   },
-
   async getClientes() {
     const { data, error } = await supabase.from('clientes').select('*');
     if (error) throw error;
     return (data || []).map(mapCliente);
   },
-
   async getCliente(id) {
     const { data, error } = await supabase.from('clientes').select('*').eq('id', id).single();
     if (error) return undefined;
     return data ? mapCliente(data) : undefined;
   },
-
   async createCliente(cliente) {
     const row = {
       nome: cliente.nome,
@@ -144,7 +137,6 @@ export const storage: IStorage = {
     if (error) throw error;
     return mapCliente(data);
   },
-
   async updateCliente(id, cliente) {
     const row: any = {};
     if (cliente.nome !== undefined) row.nome = cliente.nome;
@@ -155,38 +147,30 @@ export const storage: IStorage = {
     if (error) return undefined;
     return data ? mapCliente(data) : undefined;
   },
-
   async deleteCliente(id) {
     await supabase.from('clientes').delete().eq('id', id);
   },
-
   async getStats() {
     const { data: todasVendas } = await supabase.from('vendas').select('*');
     const vendas = (todasVendas || []).map(mapVenda);
-
     const totalVendas = vendas.length;
     const totalKg = vendas.reduce((s, v) => s + (v.quantidadeKg || 0), 0);
     const totalValor = vendas.reduce((s, v) => s + (v.valorTotal || 0), 0);
     const totalPago = vendas.filter(v => v.statusPagamento === "pago").reduce((s, v) => s + (v.valorTotal || 0), 0);
     const totalPendente = vendas.filter(v => v.statusPagamento === "pendente").reduce((s, v) => s + (v.valorTotal || 0), 0);
-
     const porDiaMap = new Map<string, { valor: number; kg: number }>();
     vendas.forEach(v => {
       const d = v.data.substring(0, 10);
       const cur = porDiaMap.get(d) || { valor: 0, kg: 0 };
       porDiaMap.set(d, { valor: cur.valor + (v.valorTotal || 0), kg: cur.kg + (v.quantidadeKg || 0) });
     });
-    const vendasPorDia = Array.from(porDiaMap.entries())
-      .map(([data, vals]) => ({ data, ...vals }))
-      .sort((a, b) => a.data.localeCompare(b.data));
-
+    const vendasPorDia = Array.from(porDiaMap.entries()).map(([data, vals]) => ({ data, ...vals })).sort((a, b) => a.data.localeCompare(b.data));
     const porMarcaMap = new Map<string, { kg: number; valor: number }>();
     vendas.forEach(v => {
       const cur = porMarcaMap.get(v.marca) || { kg: 0, valor: 0 };
       porMarcaMap.set(v.marca, { kg: cur.kg + (v.quantidadeKg || 0), valor: cur.valor + (v.valorTotal || 0) });
     });
     const vendasPorMarca = Array.from(porMarcaMap.entries()).map(([marca, vals]) => ({ marca, ...vals }));
-
     const porPagMap = new Map<string, { count: number; valor: number }>();
     vendas.forEach(v => {
       const forma = v.formaPagamento || "N\u00e3o informado";
@@ -194,7 +178,6 @@ export const storage: IStorage = {
       porPagMap.set(forma, { count: cur.count + 1, valor: cur.valor + (v.valorTotal || 0) });
     });
     const vendasPorPagamento = Array.from(porPagMap.entries()).map(([forma, vals]) => ({ forma, ...vals }));
-
     return { totalVendas, totalKg, totalValor, totalPago, totalPendente, vendasPorDia, vendasPorMarca, vendasPorPagamento };
   }
 };
