@@ -1,10 +1,10 @@
-import { sqliteTable, text, real, integer } from "drizzle-orm/sqlite-core";
+import { pgTable, text, doublePrecision, integer, boolean, serial } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 // Tabela de clientes
-export const clientes = sqliteTable("clientes", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
+export const clientes = pgTable("clientes", {
+  id: serial("id").primaryKey(),
   nome: text("nome").notNull(),
   cpfCnpj: text("cpf_cnpj"),
   telefone: text("telefone"),
@@ -12,25 +12,25 @@ export const clientes = sqliteTable("clientes", {
 });
 
 // Tabela de vendas
-export const vendas = sqliteTable("vendas", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  data: text("data").notNull(), // ISO date string
+export const vendas = pgTable("vendas", {
+  id: serial("id").primaryKey(),
+  data: text("data").notNull(),
   marca: text("marca").notNull(),
-  tipoProduto: text("tipo_produto").notNull(), // ex: "Fireh 500g", "Moído no Hora"
-  pesoPacote: text("peso_pacote").notNull(), // ex: "500g", "250g", "1kg"
-  quantidadeKg: real("quantidade_kg").notNull(),
-  precoKg: real("preco_kg"),
-  valorTotal: real("valor_total"),
-  formaPagamento: text("forma_pagamento"), // pix, dinheiro, cartao, boleto, pendente
-  statusPagamento: text("status_pagamento").notNull().default("pendente"), // pago, pendente, parcial
+  tipoProduto: text("tipo_produto").notNull(),
+  pesoPacote: text("peso_pacote").notNull(),
+  quantidadeKg: doublePrecision("quantidade_kg").notNull(),
+  precoKg: doublePrecision("preco_kg"),
+  valorTotal: doublePrecision("valor_total"),
+  formaPagamento: text("forma_pagamento"),
+  statusPagamento: text("status_pagamento").notNull().default("pendente"),
   clienteNome: text("cliente_nome"),
   clienteId: integer("cliente_id"),
-  emitirNota: integer("emitir_nota", { mode: "boolean" }).default(false),
+  emitirNota: boolean("emitir_nota").default(false),
   observacoes: text("observacoes"),
-  parcelas: text("parcelas"), // JSON string: [{dias: number, valor: number, dataVenc: string}]
+  parcelas: text("parcelas"),
 });
 
-// Schemas de inserção
+// Schemas de inser\u00e7\u00e3o
 export const insertClienteSchema = createInsertSchema(clientes).omit({ id: true });
 export const insertVendaSchema = createInsertSchema(vendas).omit({ id: true });
 

@@ -2,83 +2,109 @@ import type { Express } from "express";
 import type { Server } from "http";
 import { storage } from "./storage";
 import { insertVendaSchema, insertClienteSchema } from "@shared/schema";
-import { z } from "zod";
 
 export function registerRoutes(httpServer: Server, app: Express) {
   // --- VENDAS ---
-  app.get("/api/vendas", (_req, res) => {
-    const vendas = storage.getVendas();
-    res.json(vendas);
+  app.get("/api/vendas", async (_req, res) => {
+    try {
+      res.json(await storage.getVendas());
+    } catch (e) {
+      res.status(500).json({ error: "Erro ao buscar vendas" });
+    }
   });
 
-  app.post("/api/vendas", (req, res) => {
+  app.post("/api/vendas", async (req, res) => {
     const parsed = insertVendaSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error });
-    const venda = storage.createVenda(parsed.data);
-    res.json(venda);
+    try {
+      res.json(await storage.createVenda(parsed.data));
+    } catch (e) {
+      res.status(500).json({ error: "Erro ao criar venda" });
+    }
   });
 
-  app.patch("/api/vendas/:id", (req, res) => {
+  app.patch("/api/vendas/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const updated = storage.updateVenda(id, req.body);
-    if (!updated) return res.status(404).json({ error: "Venda não encontrada" });
-    res.json(updated);
+    try {
+      const updated = await storage.updateVenda(id, req.body);
+      if (!updated) return res.status(404).json({ error: "Venda n\u00e3o encontrada" });
+      res.json(updated);
+    } catch (e) {
+      res.status(500).json({ error: "Erro ao atualizar venda" });
+    }
   });
 
-  app.delete("/api/vendas/:id", (req, res) => {
+  app.delete("/api/vendas/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    storage.deleteVenda(id);
+    await storage.deleteVenda(id);
     res.json({ ok: true });
   });
 
   // --- CLIENTES ---
-  app.get("/api/clientes", (_req, res) => {
-    res.json(storage.getClientes());
+  app.get("/api/clientes", async (_req, res) => {
+    try {
+      res.json(await storage.getClientes());
+    } catch (e) {
+      res.status(500).json({ error: "Erro ao buscar clientes" });
+    }
   });
 
-  app.post("/api/clientes", (req, res) => {
+  app.post("/api/clientes", async (req, res) => {
     const parsed = insertClienteSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error });
-    res.json(storage.createCliente(parsed.data));
+    try {
+      res.json(await storage.createCliente(parsed.data));
+    } catch (e) {
+      res.status(500).json({ error: "Erro ao criar cliente" });
+    }
   });
 
-  app.patch("/api/clientes/:id", (req, res) => {
+  app.patch("/api/clientes/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    const updated = storage.updateCliente(id, req.body);
-    if (!updated) return res.status(404).json({ error: "Cliente não encontrado" });
-    res.json(updated);
+    try {
+      const updated = await storage.updateCliente(id, req.body);
+      if (!updated) return res.status(404).json({ error: "Cliente n\u00e3o encontrado" });
+      res.json(updated);
+    } catch (e) {
+      res.status(500).json({ error: "Erro ao atualizar cliente" });
+    }
   });
 
-  app.delete("/api/clientes/:id", (req, res) => {
+  app.delete("/api/clientes/:id", async (req, res) => {
     const id = parseInt(req.params.id);
-    storage.deleteCliente(id);
+    await storage.deleteCliente(id);
     res.json({ ok: true });
   });
 
   // --- STATS / DASHBOARD ---
-  app.get("/api/stats", (_req, res) => {
-    res.json(storage.getStats());
+  app.get("/api/stats", async (_req, res) => {
+    try {
+      res.json(await storage.getStats());
+    } catch (e) {
+      res.status(500).json({ error: "Erro ao buscar estat\u00edsticas" });
+    }
   });
 
-  // --- SEED (popular com dados do relatório) ---
-  app.post("/api/seed", (_req, res) => {
+  // --- SEED ---
+  app.post("/api/seed", async (_req, res) => {
     const vendasIniciais: any[] = [];
-
-    // Verifica se já tem dados
-    const existentes = storage.getVendas();
-    if (existentes.length > 0) {
-      return res.json({ message: "Dados já existem", count: existentes.length });
-    }
-
-    let count = 0;
-    for (const v of vendasIniciais) {
-      try {
-        storage.createVenda(v as any);
-        count++;
-      } catch (e) {
-        // continua
+    try {
+      const existentes = await storage.getVendas();
+      if (existentes.length > 0) {
+        return res.json({ message: "Dados j\u00e1 existem", count: existentes.length });
       }
+      let count = 0;
+      for (const v of vendasIniciais) {
+        try {
+          await storage.createVenda(v as any);
+          count++;
+        } catch (e) {
+          // continua
+        }
+      }
+      res.json({ message: `${count} vendas importadas com sucesso!` });
+    } catch (e) {
+      res.status(500).json({ error: "Erro no seed" });
     }
-    res.json({ message: `${count} vendas importadas com sucesso!` });
   });
 }
