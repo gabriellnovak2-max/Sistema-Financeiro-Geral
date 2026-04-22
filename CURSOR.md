@@ -1,8 +1,68 @@
-# CURSOR.md — Regras do Cérebro Duplo Perplexity + Cursor
+# CURSOR.md — Regras do Cérebro Duplo Perplexity + Cursor (+ Claude Code)
 
 > Este arquivo é lido automaticamente pelo Cursor toda vez que ele abre o projeto.
 > Espelho do arquivo SKILL que a Perplexity carrega. Os dois falam a mesma língua.
+> Claude Code também deve ler este arquivo antes de qualquer tarefa.
 > **Dono:** Gabriel (Visionário) — Patrocínio Café, Goiânia-GO.
+
+---
+
+## 🚨 REGRA ZERO — GIT PUSH E PULL OBRIGATÓRIOS (LEIA ANTES DE QUALQUER COISA)
+
+**ESTA É A REGRA MAIS IMPORTANTE DE TODAS. SE VIOLAR, DESTRÓI TRABALHO DO OUTRO.**
+
+Gabriel trabalha com 3 IAs no mesmo projeto: **Perplexity, Cursor e Claude Code**. As 3 mexem nos mesmos arquivos. O GitHub é o **ÚNICO caderno oficial** — todo mundo lê dele antes de mexer, e todo mundo escreve nele depois.
+
+### ❗ ANTES de QUALQUER alteração em código, schema ou arquivo do repo
+
+**SEMPRE rodar:**
+```bash
+git fetch --all
+git status
+git pull origin <branch-atual>
+```
+
+Se houver conflito ou alterações locais não commitadas, **PARA** e avisa o Gabriel. **Não altera nada até resolver.**
+
+### ❗ DEPOIS de QUALQUER alteração
+
+**SEMPRE rodar:**
+```bash
+git add <arquivos>
+git commit -m "<mensagem descritiva em PT-BR>"
+git push origin <branch>
+```
+
+E avisar o Gabriel **na mensagem final** qual foi o hash do commit e em qual branch foi.
+
+### ❗ Regras rígidas inegociáveis
+
+1. **NUNCA deixar alteração só local.** Commit + push sempre.
+2. **NUNCA começar tarefa sem fazer pull antes.** Nem que tenha certeza que nada mudou.
+3. **NUNCA fazer force push** (`git push --force`) sem autorização explícita do Gabriel.
+4. **NUNCA commitar .env** ou arquivo com senha/chave.
+5. Se for fazer mudança grande (migração, refactor, schema), **criar branch separada** e avisar o Gabriel antes.
+6. Mensagem de commit em **português BR**, curta e descritiva. Ex: `"feat: adicionar tabela categorias_financeiras"`, `"fix: corrigir FK em contas_receber"`.
+
+### ❗ Checklist antes de dizer "terminei" pro Gabriel
+
+- [ ] Fiz pull ANTES de começar?
+- [ ] Commitei tudo que alterei?
+- [ ] Fiz push pro GitHub?
+- [ ] Falei pro Gabriel qual commit e qual branch?
+- [ ] Se criei branch nova, avisei o Gabriel e as outras IAs (atualizando este CURSOR.md)?
+
+### Exemplo do dia-a-dia
+
+3 funcionários da torrefação mexendo no mesmo caderno de controle de lote. Se o cara da manhã anota saca nova e leva o caderno pra casa, o cara da tarde anota num caderno antigo. No fim do dia, os dois cadernos têm números diferentes e ninguém sabe qual é o certo. **O caderno do GitHub é o único caderno oficial.** Todo mundo lê dele antes de anotar, todo mundo devolve depois de anotar.
+
+### Se alguma IA esquecer dessa regra
+
+Quem lembrou **chama a outra na mesma hora**, no chat do Gabriel. Exemplo:
+
+> "Visionário, o Cursor fez alteração e não subiu. Tá só local. Pede pra ele dar `git push origin main` antes de continuar, senão eu vou baixar versão velha aqui."
+
+Esta regra prevalece sobre todas as outras. Qualquer tarefa técnica começa e termina no Git.
 
 ---
 
@@ -146,6 +206,8 @@ Tudo vai pro Supabase. Nada em `useState` que some ao dar F5.
 
 ## CHECKLIST ANTES DE TODA RESPOSTA
 
+- [ ] **🚨 GIT: fiz `git pull` ANTES de começar a alterar?** (REGRA ZERO)
+- [ ] **🚨 GIT: vou fazer `git push` DEPOIS de terminar?** (REGRA ZERO)
 - [ ] Identifiquei se essa tarefa é melhor minha ou da Perplexity?
 - [ ] Se é da outra, avisei o Gabriel em 1 frase?
 - [ ] Resposta curta ou longa?
@@ -156,6 +218,7 @@ Tudo vai pro Supabase. Nada em `useState` que some ao dar F5.
 - [ ] Pesquisei fato externo se precisou?
 - [ ] Português BR, informal, sem emoji?
 - [ ] Chamei de Gabriel ou Visionário?
+- [ ] **🚨 GIT: avisei o Gabriel qual commit e qual branch?**
 
 ---
 
@@ -172,6 +235,7 @@ Toda decisão importante fica registrada aqui. Antes de sugerir algo novo, pergu
 - **22/04** — Identificados 7 alertas críticos de RLS desligado no Supabase
 - **22/04** — Pente fino comparativo Perplexity vs Cursor; Cursor pegou 3 erros da Perplexity
 - **22/04** — Criado este `CURSOR.md` + skill `duo-perplexity-cursor` na Perplexity
+- **22/04** — Adicionada REGRA ZERO de Git (pull antes / push depois) em ambas as skills para evitar conflito entre Perplexity, Cursor e Claude Code
 
 ### Decisões pendentes (esperando Gabriel)
 
