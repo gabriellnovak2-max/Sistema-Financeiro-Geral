@@ -1,8 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Cliente, InsertCliente, Venda, InsertVenda } from "@shared/schema";
 
-const supabaseUrl = process.env.SUPABASE_URL || 'https://ekmjyubgknfssoqafxri.supabase.co';
-const supabaseKey = process.env.SUPABASE_SECRET_KEY!;
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error("Missing Supabase env vars: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required");
+}
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 function mapVenda(row: any): Venda {
