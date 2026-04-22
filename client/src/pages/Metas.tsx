@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import * as db from "@/lib/db";
 import { Target, TrendingUp, Package, DollarSign, Plus, Trash2, Check } from "lucide-react";
 
 type Meta = { id: number; label: string; tipo: "valor" | "kg" | "vendas"; alvo: number };
@@ -21,7 +21,7 @@ export default function Metas() {
 
   const { data: stats } = useQuery({
     queryKey: ["/api/stats"],
-    queryFn: () => apiRequest("GET", "/api/stats").then(r => r.json()),
+    queryFn: () => db.getStats(),
   });
 
   const atual = (tipo: string) => {

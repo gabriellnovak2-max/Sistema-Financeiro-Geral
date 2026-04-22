@@ -1,15 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import * as db from "@/lib/db";
 import { FileText, TrendingUp, Package, DollarSign, Download, Calendar } from "lucide-react";
 
 export default function Relatorios() {
   const { data: stats } = useQuery({
     queryKey: ["/api/stats"],
-    queryFn: () => apiRequest("GET", "/api/stats").then(r => r.json()),
+    queryFn: () => db.getStats(),
   });
   const { data: vendas = [] } = useQuery({
     queryKey: ["/api/vendas"],
-    queryFn: () => apiRequest("GET", "/api/vendas").then(r => r.json()),
+    queryFn: () => db.getVendas(),
   });
 
   // Agrupa por mês
