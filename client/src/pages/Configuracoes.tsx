@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Bell, Database, Palette, Shield, Save, RefreshCw } from "lucide-react";
+import { Settings, Bell, Database, Palette, Shield, Save } from "lucide-react";
 
 export default function Configuracoes() {
   const [nomeEmpresa, setNomeEmpresa] = useState("Gyrée Café");
@@ -123,18 +123,10 @@ export default function Configuracoes() {
 
       {/* Dados */}
       <Section icon={<Database size={14} style={{ color: "#60a5fa" }} />} title="Dados do Sistema" color="#60a5fa">
-        <Field label="Banco de dados" sub="SQLite local — 112 registros importados">
+        <Field label="Banco de dados" sub="Supabase — frontend direto, sem Express">
           <span className="px-2 py-1 rounded text-xs" style={{ background: "rgba(52,211,153,0.1)", color: "#34d399", fontFamily: "'IBM Plex Mono', monospace" }}>
-            valtim.db ✓
+            Supabase ✓
           </span>
-        </Field>
-        <Field label="Recarregar dados iniciais" sub="Reimporta os registros do Valtim (só se o banco estiver vazio)">
-          <button
-            onClick={() => fetch("/api/seed", { method: "POST" })}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all"
-            style={{ background: "rgba(96,165,250,0.1)", border: "1px solid rgba(96,165,250,0.2)", color: "#60a5fa" }}>
-            <RefreshCw size={12} /> Reimportar
-          </button>
         </Field>
       </Section>
 

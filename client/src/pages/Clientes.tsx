@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
+import * as db from "@/lib/db";
 import type { Cliente } from "@shared/schema";
 import { Plus, Pencil, Trash2, X, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -46,21 +47,21 @@ export default function Clientes() {
 
   const { data: clientes = [] } = useQuery<Cliente[]>({
     queryKey: ["/api/clientes"],
-    queryFn: () => apiRequest("GET", "/api/clientes").then(r => r.json()),
+    queryFn: () => db.getClientes(),
   });
 
   const create = useMutation({
-    mutationFn: (d: any) => apiRequest("POST", "/api/clientes", d).then(r => r.json()),
+    mutationFn: (d: any) => db.createCliente(d),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/clientes"] }); toast({ title: "Cliente cadastrado!" }); setEditCliente(undefined); },
   });
 
   const update = useMutation({
-    mutationFn: ({ id, data }: any) => apiRequest("PATCH", `/api/clientes/${id}`, data).then(r => r.json()),
+    mutationFn: ({ id, data }: any) => db.updateCliente(id, data),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/clientes"] }); toast({ title: "Atualizado!" }); setEditCliente(undefined); },
   });
 
   const remove = useMutation({
-    mutationFn: (id: number) => apiRequest("DELETE", `/api/clientes/${id}`),
+    mutationFn: (id: number) => db.deleteCliente(id),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/clientes"] }); toast({ title: "Removido" }); },
   });
 
