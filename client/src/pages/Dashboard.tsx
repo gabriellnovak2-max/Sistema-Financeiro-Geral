@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import * as db from "@/lib/db";
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart
@@ -86,12 +86,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export default function Dashboard() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ["/api/stats"],
-    queryFn: () => apiRequest("GET", "/api/stats").then(r => r.json()),
+    queryFn: () => db.getStats(),
   });
-
-  useEffect(() => {
-    fetch("/api/seed", { method: "POST" }).catch(() => {});
-  }, []);
 
   if (isLoading) {
     return (
