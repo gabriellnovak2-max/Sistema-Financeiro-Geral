@@ -659,7 +659,7 @@ function CalAgenda({ vendas }: { vendas: Venda[] }) {
                   </div>
                   {/* Tags de marcas */}
                   <div className="flex flex-wrap gap-1">
-                    {[...new Set(vDia.map(v=>v.marca))].map(marca => (
+                    {Array.from(new Set(vDia.map(v=>v.marca))).map(marca => (
                       <span key={marca} className="text-xs px-1.5 py-0.5 rounded" style={{ background:"rgba(16,185,129,0.1)", color:"hsl(192,70%,60%)", fontSize:"0.6rem" }}>{marca}</span>
                     ))}
                   </div>
