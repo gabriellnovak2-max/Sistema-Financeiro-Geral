@@ -2,6 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { FileText, TrendingUp, Package, DollarSign, Download, Calendar } from "lucide-react";
 
+type ResumoMes = {
+  valor: number;
+  kg: number;
+  qtd: number;
+};
+
 export default function Relatorios() {
   const { data: stats } = useQuery({
     queryKey: ["/api/stats"],
@@ -13,7 +19,7 @@ export default function Relatorios() {
   });
 
   // Agrupa por mês
-  const porMes = vendas.reduce((acc: Record<string, { valor: number; kg: number; qtd: number }>, v: any) => {
+  const porMes = vendas.reduce((acc: Record<string, ResumoMes>, v: any) => {
     const mes = v.data?.substring(0, 7) ?? "—";
     if (!acc[mes]) acc[mes] = { valor: 0, kg: 0, qtd: 0 };
     acc[mes].valor += v.valorTotal ?? 0;
@@ -22,7 +28,7 @@ export default function Relatorios() {
     return acc;
   }, {});
 
-  const meses = Object.entries(porMes).sort(([a], [b]) => a.localeCompare(b));
+  const meses = Object.entries<ResumoMes>(porMes).sort(([a], [b]) => a.localeCompare(b));
 
   const fmtMes = (iso: string) => {
     const [y, m] = iso.split("-");
