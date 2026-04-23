@@ -281,6 +281,32 @@ function fmtData(iso: string) {
   return `${dia}/${m}/${y}`;
 }
 
+function getErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error) {
+    const match = error.message.match(/\{"error":"([^"]+)"/);
+    if (match?.[1]) return match[1];
+    return error.message;
+  }
+  return fallback;
+}
+
+function validarVenda(data: any) {
+  if (!data.data) return "Preencha a data da saída.";
+  if (!data.marca?.trim()) return "Selecione a marca.";
+  if (!data.tipoProduto?.trim() || data.tipoProduto === "Outro") return "Selecione ou digite o produto.";
+  if (!data.pesoPacote?.trim()) return "Selecione a embalagem.";
+  if (typeof data.quantidadeKg !== "number" || !Number.isFinite(data.quantidadeKg) || data.quantidadeKg <= 0) {
+    return "Digite uma quantidade válida em kg.";
+  }
+  if (data.precoKg !== null && data.precoKg !== undefined && (!Number.isFinite(data.precoKg) || data.precoKg < 0)) {
+    return "Digite um preço/kg válido.";
+  }
+  if (data.valorTotal !== null && data.valorTotal !== undefined && (!Number.isFinite(data.valorTotal) || data.valorTotal < 0)) {
+    return "Digite um valor total válido.";
+  }
+  return null;
+}
+
 type Parcela = { dias: number; valor: string; dataVenc: string };
 type PagSalvo = { entrada: string; parcelas: Parcela[] };
 
@@ -713,7 +739,15 @@ function EditModal({ venda, onClose, onSave }: { venda: Venda | null; onClose: (
           </div>
           <div>
             <label className={labelCls} style={{ color: "#34d399" }}>Quantidade (kg)</label>
-            <input type="number" step="0.001" className={inputCls} style={inputStyle} value={form.quantidadeKg} onChange={e => f("quantidadeKg", parseFloat(e.target.value))} data-testid="input-qtd" />
+            <input
+              type="number"
+              step="0.001"
+              className={inputCls}
+              style={inputStyle}
+              value={form.quantidadeKg ?? ""}
+              onChange={e => f("quantidadeKg", e.target.value === "" ? null : parseFloat(e.target.value))}
+              data-testid="input-qtd"
+            />
           </div>
           <div>
             <label className={labelCls} style={{ color: "#34d399" }}>Preço/kg (R$)</label>
@@ -780,19 +814,50 @@ export default function Vendas() {
   const createMutation = useMutation({
     mutationFn: (data: any) => apiRequest("POST", "/api/vendas", data).then(r => r.json()),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/vendas"] }); queryClient.invalidateQueries({ queryKey: ["/api/stats"] }); toast({ title: "Venda criada!" }); setEditVenda(undefined); },
+    onError: (error) => {
+      toast({
+        title: "Não foi possível salvar",
+        description: getErrorMessage(error, "Confira os campos obrigatórios da venda."),
+        variant: "destructive",
+      });
+    },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: any) => apiRequest("PATCH", `/api/vendas/${id}`, data).then(r => r.json()),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/vendas"] }); queryClient.invalidateQueries({ queryKey: ["/api/stats"] }); toast({ title: "Atualizado!" }); setEditVenda(undefined); },
+    onError: (error) => {
+      toast({
+        title: "Não foi possível atualizar",
+        description: getErrorMessage(error, "Revise os dados e tente de novo."),
+        variant: "destructive",
+      });
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => apiRequest("DELETE", `/api/vendas/${id}`),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/vendas"] }); queryClient.invalidateQueries({ queryKey: ["/api/stats"] }); toast({ title: "Removido" }); },
+    onError: (error) => {
+      toast({
+        title: "Não foi possível remover",
+        description: getErrorMessage(error, "Tente novamente."),
+        variant: "destructive",
+      });
+    },
   });
 
   const handleSave = (data: any) => {
+    const erro = validarVenda(data);
+    if (erro) {
+      toast({
+        title: "Falta preencher a venda",
+        description: erro,
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (editVenda?.id) updateMutation.mutate({ id: editVenda.id, data });
     else createMutation.mutate(data);
   };
