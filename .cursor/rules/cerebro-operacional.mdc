@@ -1,0 +1,28 @@
+---
+description: Usa o cerebro operacional do projeto antes de alterar codigo.
+alwaysApply: true
+---
+
+# CEREBRO OPERACIONAL - REGRA
+
+Antes de qualquer alteracao de codigo:
+
+1. Ler nesta ordem:
+   - `docs/cerebro/00-indice-operacional.md`
+   - `docs/cerebro/01-contexto-e-objetivo.md`
+   - `docs/cerebro/02-ordem-sagrada.md`
+   - `docs/cerebro/03-alertas-criticos-fase1.md`
+   - `docs/cerebro/04-protocolo-pesquisa-antes.md`
+
+2. Confirmar fase correta e dependencias antes de implementar.
+
+3. Nao pular etapa.
+
+4. Em temas externos (fiscal/regra/API/preco), validar com fonte oficial recente.
+
+5. Nao declarar concluido sem prova objetiva.
+
+6. Aplicar Regra Zero Git:
+   - pull antes
+   - push depois
+   - hash no final
