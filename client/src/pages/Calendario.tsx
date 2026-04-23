@@ -39,7 +39,7 @@ function StatCard({ label, value, color, icon: Icon }: any) {
     <div className="glass rounded-xl px-3 py-2.5 text-center">
       <Icon size={13} className="mx-auto mb-1" style={{ color, opacity: 0.7 }} />
       <p className="font-display font-800 text-sm" style={{ color, fontWeight: 800 }}>{value}</p>
-      <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.6rem" }}>{label}</p>
+      <p className="text-xs mt-0.5" style={{ color: "rgba(255, 255, 255, 0.53)", fontSize: "0.6rem" }}>{label}</p>
     </div>
   );
 }
@@ -47,7 +47,7 @@ function StatCard({ label, value, color, icon: Icon }: any) {
 // ─── Painel de detalhe do dia ───
 function DiaDetalhe({ vendas, dia, mes, ano, onClose }: { vendas: Venda[]; dia: number; mes: number; ano: number; onClose: () => void }) {
   return (
-    <div className="glass rounded-xl p-4 cal-animate" style={{ border: "1px solid rgba(52,211,153,0.2)" }}>
+    <div className="glass rounded-xl p-4 cal-animate" style={{ border: "1px solid rgba(52, 168, 211, 0.2)" }}>
       <div className="flex items-center justify-between mb-3 pb-2" style={{ borderBottom: "1px solid rgba(16,185,129,0.15)" }}>
         <div>
           <p className="font-display font-800 text-sm" style={{ color: "#34d399", fontWeight: 800 }}>
