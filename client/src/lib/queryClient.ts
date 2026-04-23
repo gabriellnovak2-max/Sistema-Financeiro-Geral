@@ -1,6 +1,17 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL?.trim() || "";
+const IS_LOCALHOST =
+  typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
+function getApiBase() {
+  if (API_BASE) return API_BASE.replace(/\/+$/, "");
+  if (IS_LOCALHOST) return "";
+  throw new Error(
+    "VITE_API_BASE_URL is required in production. Set it to your deployed backend URL.",
+  );
+}
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -14,7 +25,8 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const res = await fetch(`${API_BASE}${url}`, {
+  const base = getApiBase();
+  const res = await fetch(`${base}${url}`, {
     method,
     headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
@@ -30,7 +42,8 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(`${API_BASE}${queryKey.join("/")}`);
+    const base = getApiBase();
+    const res = await fetch(`${base}${queryKey.join("/")}`);
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;
