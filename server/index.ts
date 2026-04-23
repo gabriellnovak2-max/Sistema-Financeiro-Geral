@@ -3,6 +3,7 @@ import cors from "cors";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import { requireAuth } from "./middleware/requireAuth";
 
 const app = express();
 const httpServer = createServer(app);
@@ -80,6 +81,13 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  app.get("/api/health", (_req, res) => res.json({ ok: true }));
+
+  app.use("/api", (req, res, next) => {
+    if (req.path === "/health") return next();
+    return requireAuth(req as any, res, next);
+  });
+
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
