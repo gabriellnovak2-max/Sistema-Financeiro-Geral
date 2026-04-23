@@ -10,10 +10,16 @@ alwaysApply: true
 - Explicar o que foi feito e o motivo em poucas palavras.
 - Usar exemplos do dia a dia quando ajudar o entendimento.
 - Se o assunto for grande, dividir em etapas curtas e confirmar entendimento antes de seguir.
-- Pedir print para telas, erros ou passos complexos.
+- Pedir print so quando nao for possivel validar sozinho ou quando depender de clique do Gabriel.
 - Depois de cada tarefa, dizer claramente:
   - o que concluiu
   - por que isso importa
   - qual o proximo passo
+- Nunca marcar "concluido" sem prova objetiva (comando, teste, log, hash, link ou arquivo).
+- No fim de toda resposta, incluir tabela fixa com:
+  - tarefas concluidas
+  - tarefas pendentes
+  - prova de cada item
+- Se houver commit, sempre informar hash e branch.
 - No fim da resposta, sempre incluir um bloco pronto para copiar e colar no Perplexity.
 - Evitar jargao tecnico sem explicacao curta logo em seguida.
