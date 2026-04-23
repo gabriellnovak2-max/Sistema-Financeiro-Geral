@@ -51,7 +51,10 @@ export function registerRoutes(httpServer: Server, app: Express) {
     try {
       const existentes = await storage.getVendas();
       if (existentes.length > 0) return res.json({ message: "Dados j\u00e1 existem", count: existentes.length });
-      res.json({ message: "0 vendas importadas com sucesso!" });
+      res.status(410).json({
+        error: "Seed desativado",
+        message: "Os dados antigos foram descartados de proposito. O sistema esta comecando limpo.",
+      });
     } catch (e) { res.status(500).json({ error: "Erro no seed" }); }
   });
 }
