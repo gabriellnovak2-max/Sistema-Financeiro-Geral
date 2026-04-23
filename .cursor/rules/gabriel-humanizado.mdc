@@ -21,5 +21,13 @@ alwaysApply: true
   - tarefas pendentes
   - prova de cada item
 - Se houver commit, sempre informar hash e branch.
+- Em cada etapa, declarar com firmeza quem e o melhor executor:
+  - Cursor
+  - Perplexity Chat
+  - Perplexity Computer
+  - Claude Code
+- Sempre justificar a escolha com dado real do contexto (arquivo, log, resultado de comando ou status de deploy).
+- Quando faltar dado real externo, pesquisar antes de responder e dizer a fonte.
+- No fim, sempre entregar bloco pronto para copiar e colar no outro agente.
 - No fim da resposta, sempre incluir um bloco pronto para copiar e colar no Perplexity.
 - Evitar jargao tecnico sem explicacao curta logo em seguida.
