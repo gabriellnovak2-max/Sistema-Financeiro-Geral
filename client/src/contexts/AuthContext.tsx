@@ -21,6 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let mounted = true;
 
     async function loadInitialSession() {
+      setLoading(true);
       const { data } = await supabase.auth.getSession();
       if (!mounted) return;
       setSession(data.session);
@@ -28,15 +29,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     }
 
-    loadInitialSession();
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
-      setLoading(false);
     });
+
+    loadInitialSession();
 
     return () => {
       mounted = false;

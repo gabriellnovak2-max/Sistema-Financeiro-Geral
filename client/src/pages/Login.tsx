@@ -34,6 +34,7 @@ export default function Login() {
     }
 
     setLocation("/");
+    setEntrando(false);
   }
 
   return (
@@ -49,17 +50,18 @@ export default function Login() {
           <CardDescription>Entre para continuar</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={onSubmit} className="space-y-3">
+          <form onSubmit={onSubmit} className="space-y-3" autoComplete="on">
             <div className="space-y-1">
               <label htmlFor="email" className="text-sm" style={{ color: "rgba(255,255,255,0.8)" }}>
                 E-mail
               </label>
               <Input
                 id="email"
+                name="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
+                autoComplete="username"
                 required
               />
             </div>
@@ -69,6 +71,7 @@ export default function Login() {
               </label>
               <Input
                 id="senha"
+                name="password"
                 type="password"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
