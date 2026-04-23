@@ -1,10 +1,30 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 
 const app = express();
 const httpServer = createServer(app);
+
+// CORS: libera dominios do Vercel (producao + previews) e localhost (dev)
+const allowedOrigins = [
+  /^https?:\/\/localhost(?::\d+)?$/,
+  /^https?:\/\/127\.0\.0\.1(?::\d+)?$/,
+  /\.vercel\.app$/,
+];
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true); // curl, mobile apps, same-origin
+      const ok = allowedOrigins.some((p) =>
+        p instanceof RegExp ? p.test(origin) : p === origin,
+      );
+      return cb(null, ok);
+    },
+    credentials: true,
+  }),
+);
 
 declare module "http" {
   interface IncomingMessage {
