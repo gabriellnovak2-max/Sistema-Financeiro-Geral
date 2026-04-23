@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { supabase } from "./supabase";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL?.trim() || "";
 const IS_LOCALHOST =
@@ -34,12 +35,25 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session?.access_token) {
+    return { Authorization: `Bearer ${session.access_token}` };
+  }
+
+  return {};
+}
+
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
   const candidates = Array.from(new Set([getApiBase(), ""]));
+  const authHeaders = await getAuthHeaders();
   let lastError: unknown;
   let res: Response | null = null;
 
@@ -47,7 +61,10 @@ export async function apiRequest(
     try {
       res = await fetch(`${base}${url}`, {
         method,
-        headers: data ? { "Content-Type": "application/json" } : {},
+        headers: {
+          ...authHeaders,
+          ...(data ? { "Content-Type": "application/json" } : {}),
+        },
         body: data ? JSON.stringify(data) : undefined,
       });
       break;
@@ -71,12 +88,15 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const candidates = Array.from(new Set([getApiBase(), ""]));
+    const authHeaders = await getAuthHeaders();
     let lastError: unknown;
     let res: Response | null = null;
 
     for (const base of candidates) {
       try {
-        res = await fetch(`${base}${queryKey.join("/")}`);
+        res = await fetch(`${base}${queryKey.join("/")}`, {
+          headers: authHeaders,
+        });
         break;
       } catch (error) {
         lastError = error;
