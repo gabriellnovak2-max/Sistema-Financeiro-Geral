@@ -3,6 +3,9 @@ import type { Server } from "http";
 import { storage } from "./storage";
 import { insertVendaSchema, insertClienteSchema } from "@shared/schema";
 
+const patchVendaSchema = insertVendaSchema.partial();
+const patchClienteSchema = insertClienteSchema.partial();
+
 export function registerRoutes(httpServer: Server, app: Express) {
   app.get("/api/vendas", async (_req, res) => {
     try { res.json(await storage.getVendas()); } catch (e) { res.status(500).json({ error: "Erro ao buscar vendas" }); }
@@ -14,8 +17,12 @@ export function registerRoutes(httpServer: Server, app: Express) {
   });
   app.patch("/api/vendas/:id", async (req, res) => {
     const id = parseInt(req.params.id);
+    const parsed = patchVendaSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Dados inválidos", issues: parsed.error.issues });
+    }
     try {
-      const updated = await storage.updateVenda(id, req.body);
+      const updated = await storage.updateVenda(id, parsed.data);
       if (!updated) return res.status(404).json({ error: "Venda n\u00e3o encontrada" });
       res.json(updated);
     } catch (e) { res.status(500).json({ error: "Erro ao atualizar venda" }); }
@@ -34,8 +41,12 @@ export function registerRoutes(httpServer: Server, app: Express) {
   });
   app.patch("/api/clientes/:id", async (req, res) => {
     const id = parseInt(req.params.id);
+    const parsed = patchClienteSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Dados inválidos", issues: parsed.error.issues });
+    }
     try {
-      const updated = await storage.updateCliente(id, req.body);
+      const updated = await storage.updateCliente(id, parsed.data);
       if (!updated) return res.status(404).json({ error: "Cliente n\u00e3o encontrado" });
       res.json(updated);
     } catch (e) { res.status(500).json({ error: "Erro ao atualizar cliente" }); }
