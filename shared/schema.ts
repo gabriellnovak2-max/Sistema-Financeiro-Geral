@@ -1,4 +1,4 @@
-import { pgTable, text, doublePrecision, integer, boolean, serial } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, doublePrecision, integer, boolean, serial } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -12,7 +12,7 @@ export const clientes = pgTable("clientes", {
 
 export const vendas = pgTable("vendas", {
   id: serial("id").primaryKey(),
-  data: text("data").notNull(),
+  data: timestamp("data", { withTimezone: true }).notNull(),
   marca: text("marca").notNull(),
   tipoProduto: text("tipo_produto").notNull(),
   pesoPacote: text("peso_pacote").notNull(),
