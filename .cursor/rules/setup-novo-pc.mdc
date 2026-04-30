@@ -1,0 +1,71 @@
+---
+description: Roteiro pro Cursor quando abrir o repo em PC novo (branco, preto, notebook). Detecta ferramentas faltando e instala.
+globs:
+alwaysApply: true
+---
+
+# Setup PC Novo — Cérebro Portátil
+
+Quando o Cursor abrir este repo em **qualquer PC do Gabriel** (branco, preto ou notebook), seguir esse roteiro **ANTES** de aceitar qualquer tarefa técnica.
+
+## Passo 1 — Identificar o PC
+
+Pergunta pro Gabriel:
+> "Visionário, você tá no PC branco, preto ou notebook?"
+
+## Passo 2 — Validar local do projeto
+
+**REGRA:** projeto NÃO PODE estar dentro de pasta do iCloud, OneDrive ou Dropbox. Tem que estar em `C:\dev\` ou similar.
+
+Se estiver em `iCloudDrive`, avisa o Gabriel:
+> "Visionário, esse projeto tá no iCloud. Não dá pra trabalhar aqui — sincroniza fora de hora e quebra. Vou te ajudar a mover pra `C:\dev\Sistema-Financeiro-Geral`."
+
+## Passo 3 — Comparar ferramentas instaladas
+
+Lista oficial do PC branco (29/04/2026):
+
+| Ferramenta | Versão de referência |
+|---|---|
+| Node.js | v24.15.0 LTS |
+| npm | v11.12.1 |
+| TypeScript | v6.0.3 |
+| tsx | v4.21.0 |
+| Scoop | v0.5.3 |
+| pnpm | v10.33.2 |
+| Supabase CLI | v2.95.4 |
+| Vercel CLI | v52.0.0 |
+| Railway CLI | v4.44.0 |
+| GitHub CLI | v2.92.0 |
+| PowerShell | 7.6.1 |
+| Git | v2.53.0 |
+| Cursor IDE | latest |
+| Insomnia | latest |
+| 7-Zip | v26.01 |
+
+Roda no PowerShell pra validar:
+```powershell
+node --version; npm --version; git --version; gh --version; supabase --version; vercel --version; railway --version
+```
+
+Se faltar coisa, manda rodar `.\scripts\setup-pc.ps1`.
+
+## Passo 4 — PATH workaround Windows
+
+Se algum comando não for reconhecido depois de instalado:
+```powershell
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","User") + ";" + [System.Environment]::GetEnvironmentVariable("Path","Machine")
+```
+
+## Passo 5 — Git pull obrigatório
+
+```bash
+git fetch --all
+git pull origin main
+git status
+```
+
+Só depois disso aceita tarefa.
+
+## Inventário completo
+
+Detalhe de tudo que já foi instalado em algum PC: `docs/cerebro-portatil/inventario-completo-programas.md`.

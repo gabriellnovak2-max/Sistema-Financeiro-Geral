@@ -1,0 +1,31 @@
+---
+description: Roadmap oficial de 55 etapas do ERP Patrocínio Café. Ordem Sagrada inegociável.
+globs:
+alwaysApply: true
+---
+
+# Roadmap Oficial — 55 Etapas
+
+Roadmap completo em `docs/cerebro-portatil/ROADMAP-49-ETAPAS-V2-SUPERPODERES.md`.
+
+## Ordem Sagrada (NUNCA inverter)
+
+1. **Fase 0 — Architecture** (7 etapas, inclui Bugbot, MCP, BUGBOT.md)
+2. **Fase 1 — Blindagem** (RLS, Auth, segurança)
+3. **Fase 2 — Financeiro** (contas a pagar/receber, fluxo de caixa, DRE)
+4. **Fase 3 — OP** (ficha técnica, lote, torra, blend, moagem)
+5. **Fase 4 — Fiscal** (NCM, CFOP, NF-e)
+6. **Fase 5 — IA + n8n + WhatsApp** (11 etapas, inclui Cloud Agents, Cursor Automations)
+7. **Fase 6 — BI**
+8. **Fase 7 — Mobile**
+
+## Regras
+
+- **n8n só na Fase 5.** Antes não.
+- **Não antecipar fase.** Se Gabriel pedir pra pular, bate de frente: explica que cada fase depende da anterior.
+- **Exceção:** corrigir bug crítico em fase já entregue.
+
+## Antes de codar qualquer tarefa
+
+Cursor tem que olhar o roadmap, identificar em qual etapa tá, e confirmar com o Gabriel:
+> "Visionário, isso aqui é etapa X.Y do roadmap. Tô na ordem certa?"
