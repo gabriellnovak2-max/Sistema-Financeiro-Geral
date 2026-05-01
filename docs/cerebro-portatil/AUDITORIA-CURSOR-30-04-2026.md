@@ -135,3 +135,52 @@ Discordo, com dados:
 **Minha sugestão:** `Fix Railway (item 7) → C (Roadmap) → A (MCP) → B (memoir push)`.
 
 Aguardando confirmação ou contra-argumento do Visionário/Perplexity.
+
+---
+
+## Fix Railway 01/05/2026 — Diagnóstico do Item 7
+
+**Contexto:** Perplexity aceitou a ordem `Fix Railway → C → A → B` e mandou MEGA PROMPT pra Cursor focar 100% no Railway.
+
+### Estado real do código (PC branco, commit `b9ee17a`)
+- `server/index.ts` (linhas 86-89): aplica `requireAuth` em **todas** as rotas `/api/*` exceto `/api/health`. ✅
+- `server/middleware/requireAuth.ts`: middleware ES256 com `jose` + JWKS Supabase. ✅
+- `server/routes.ts`: rotas existem normalmente, sem precisar `requireAuth` em cada uma — herdam do middleware global. ✅
+
+→ **Código local está correto. Não há fix de código a aplicar.**
+
+### Estado real da produção (Railway, 01/05/2026 ~01:13 BRT)
+3 testes via curl:
+- `GET /api/health` → **502**
+- `GET /api/vendas` (sem token) → **502**
+- `GET /api/vendas` (token fake) → **502**
+
+Body da resposta: `{"status":"error","code":502,"message":"Application failed to respond"}`
+
+### Mudança em relação à última rodada
+- Antes: `200` com dados reais vazando.
+- Agora: `502` fixo em todos os endpoints.
+
+### Causa mais provável (hipótese forte)
+Tanto `server/middleware/requireAuth.ts` quanto `server/storage.ts` fazem **`throw new Error()`** no boot se não encontrarem as variáveis `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`.
+
+Se o Railway está em deploy do código novo **mas sem essas variáveis configuradas**, o módulo derruba o processo todo no `import` e o serviço fica `502`.
+
+### O que o Gabriel precisa fazer no Railway antes de qualquer commit novo
+1. Abrir o painel Railway → projeto `Sistema-Financeiro-Geral` → serviço.
+2. Aba **Variables**.
+3. Confirmar (ou criar) as variáveis:
+   - `SUPABASE_URL` (`https://ekmjyubgknfssoqafxri.supabase.co`)
+   - `SUPABASE_SERVICE_ROLE_KEY` (o segredo `sb_secret_...` ou `sb_service_role_...`)
+   - `NODE_ENV=production`
+4. Aguardar redeploy automático.
+5. Reaproveitar curls deste arquivo pra validar:
+   - `GET /api/health` deve voltar `{"ok":true}` com `200`
+   - `GET /api/vendas` sem token deve voltar `401`
+   - `GET /api/vendas` com token fake deve voltar `401`
+
+### Status do Item 7 (segurança crítica)
+- Código: ✅ corrigido
+- Produção: 🔴 ainda fora do ar (502) — falta provar `401` real
+- Bloqueio: variáveis Railway (não é commit, é configuração de painel)
+
