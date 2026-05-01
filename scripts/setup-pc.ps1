@@ -5,6 +5,13 @@
 Write-Host "🚀 Setup PC Gabriel — Sistema-Financeiro-Geral" -ForegroundColor Cyan
 Write-Host ""
 
+# Verifica se tá rodando como admin PRIMEIRO (antes de criar pasta ou mexer em qualquer coisa)
+$isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if (-not $isAdmin) {
+    Write-Host "⚠️  Esse script precisa rodar como ADMIN. Fecha e abre PowerShell com botão direito → 'Executar como Administrador'." -ForegroundColor Red
+    exit 1
+}
+
 # Cria pasta C:\dev\ se não existir (local oficial dos projetos, fora do iCloud)
 if (-not (Test-Path "C:\dev")) {
     Write-Host "📁 Criando C:\dev (pasta oficial dos projetos, fora do iCloud)..." -ForegroundColor Yellow
@@ -14,13 +21,6 @@ if (-not (Test-Path "C:\dev")) {
     Write-Host "📁 C:\dev já existe" -ForegroundColor Gray
 }
 Write-Host ""
-
-# Verifica se tá rodando como admin
-$isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-if (-not $isAdmin) {
-    Write-Host "⚠️  Esse script precisa rodar como ADMIN. Fecha e abre PowerShell com botão direito → 'Executar como Administrador'." -ForegroundColor Red
-    exit 1
-}
 
 # Lista de ferramentas via winget
 $tools = @(

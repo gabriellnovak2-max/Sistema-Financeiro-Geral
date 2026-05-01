@@ -68,13 +68,13 @@ Pronto. Cursor, Claude Code, Copilot — tudo volta com as configs idênticas.
 
 | Situação | Ferramenta |
 |---|---|
-| Abrindo PC novo do zero | `memoir pull` (depois de instalar Cursor) |
-| Mudou User Rules em 1 PC | `memoir push` no PC que mudou, depois `memoir pull` nos outros |
+| Abrindo PC novo do zero | `memoir restore` (depois de instalar Cursor) |
+| Mudou User Rules em 1 PC | `memoir push` no PC que mudou, depois `memoir restore` nos outros |
 | Quer sincronização automática | Camada 2 (User Rules) já faz, memoir é pra config mais ampla |
 
 ## Exemplo do dia-a-dia
 
-É igual mudança de casa. Você não joga os móveis no caminhão de qualquer jeito — você embala caixa por caixa, etiqueta, e na casa nova tira da caixa e bota no mesmo lugar. `memoir push` é embalar tudo. `memoir pull` é desembalar do outro lado. A casa nova fica igual a antiga.
+É igual mudança de casa. Você não joga os móveis no caminhão de qualquer jeito — você embala caixa por caixa, etiqueta, e na casa nova tira da caixa e bota no mesmo lugar. `memoir push` é embalar tudo. `memoir restore` é desembalar do outro lado. A casa nova fica igual a antiga.
 
 ## Referências
 
