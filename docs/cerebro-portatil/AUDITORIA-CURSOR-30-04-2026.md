@@ -101,3 +101,37 @@
 - **C)** Voltar pro roadmap (Etapa 1.x ou 0.5/0.6/0.7) e seguir o desenvolvimento do ERP.
 
 Aguardando decisão do Visionário.
+
+---
+
+## Reauditoria 01/05/2026 — Commit `efcc61e`
+
+**Auditor:** Cursor (Claude Opus 4.7)
+**Commit reauditado:** `efcc61e` (`fix(cerebro-portatil): corrige 5 inconsistencias da auditoria do Cursor`)
+**Local:** ainda em `iCloudDrive\...\Sistema-Financeiro-Geral.CLEAN-20260423` (item 1 segue pendente)
+
+### Itens da primeira auditoria que foram resolvidos
+
+| # | Pendência anterior | Status | Onde foi corrigido |
+|---|---|---|---|
+| 3.1 | `LEIA-ME-PRIMEIRO.md` dizia "n8n só na Fase 3" | ✅ Resolvido | Linha 114 agora: `n8n só na Fase 5. Não antecipar.` |
+| 3.2 | `setup-pc.ps1` tentava `npm install -g supabase` | ✅ Resolvido | Bloco Scoop com `scoop bucket add supabase ...; scoop install supabase`; npm tools sem `supabase` |
+| 3.3 | `setup-pc.ps1` não criava `C:\dev` | ✅ Resolvido | Bloco `New-Item -ItemType Directory -Path "C:\dev" -Force` no início |
+| 3.4 | Repo ainda em iCloud (regra contraditória com a realidade) | 🟡 Documentado | Novo guia `docs/cerebro-portatil/MOVER-DO-ICLOUD.md`; mover ainda é tarefa do Visionário |
+| 3.5 | Pacote `memoir-cli` não validado | ✅ Resolvido | `04-memoir-cli.md` cita npm registry oficial e adiciona opção `npx memoir-cli` |
+
+### Achados novos da reauditoria
+
+- `04-memoir-cli.md` tem leve incoerência: explica `memoir restore` no texto, mas a tabela de "quando usar cada coisa" ainda diz `memoir pull`. Trocar `memoir pull` por `memoir restore` na tabela (linhas 71–72).
+- `scripts/setup-pc.ps1`: cria `C:\dev` **antes** da checagem de Admin. Se usuário rodar sem Admin, ainda cria a pasta e sai com erro depois. Inverter a ordem: validar Admin primeiro, criar pasta depois.
+
+### Sobre a nova ordem `C → A → Fix Railway → B`
+
+Discordo, com dados:
+- O item 7 (Railway expondo `/api/vendas` sem token) é **dado real vazando em produção agora**.
+- Adiar isso pra depois de C e A aumenta janela de exposição (mais tempo público sem JWT).
+- Roadmap (C) e MCP (A) trazem ganho de produtividade, **não fecham buraco de segurança**.
+
+**Minha sugestão:** `Fix Railway (item 7) → C (Roadmap) → A (MCP) → B (memoir push)`.
+
+Aguardando confirmação ou contra-argumento do Visionário/Perplexity.
