@@ -111,7 +111,7 @@ Ler detalhes em `docs/cerebro-portatil/`.
 7. BI
 8. Mobile
 
-n8n só na Fase 3. Não antecipar.
+n8n só na Fase 5. Não antecipar.
 
 ---
 

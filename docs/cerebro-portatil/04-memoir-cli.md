@@ -15,26 +15,52 @@ CLI que faz backup e restore de **todas as configs de IA** que você tem em ferr
 - Cline
 - Roo Code
 
+## Verificação de existência (01/05/2026)
+
+✅ Pacote `memoir-cli` confirmado no [npm registry](https://www.npmjs.com/package/memoir-cli) e [debricked](https://debricked.com/select/package/pkg:npm%2Fmemoir-cli). Site oficial: [memoir.sh](https://memoir.sh).
+
 ## Como instalar (uma vez por PC)
 
+**Opção A — instala global (recomendado):**
 ```bash
 npm install -g memoir-cli
-memoir login   # cria conta com email
 ```
+
+**Opção B — roda direto sem instalar (jeito do site oficial):**
+```bash
+npx memoir-cli
+```
+
+## Setup inicial
+
+```bash
+memoir init        # configura: escolhe GitHub Repo como storage, ativa criptografia
+```
+
+Vai pedir:
+- Provedor de storage (escolher **GitHub Repo**)
+- Ativar criptografia? **Sim** (AES-256-GCM)
+- Senha (passphrase) — **GUARDAR EM GERENCIADOR DE SENHA. Se perder, perde tudo.**
 
 ## Backup do PC atual (push)
 
 ```bash
-memoir init        # configura quais ferramentas salvar
-memoir push        # sobe tudo pra cloud
+memoir push        # sobe tudo encriptado pro GitHub privado
 ```
+
+O `push` rastreia automaticamente:
+- Configs do Cursor, Claude Code, Copilot etc
+- 11 ferramentas de IA suportadas
+- Bloqueia se detectar API key/token expostos
 
 ## Restaurar em PC novo (pull)
 
 ```bash
-memoir login       # mesma conta
-memoir pull        # baixa tudo
+npx memoir-cli     # ou: npm install -g memoir-cli
+memoir restore     # baixa e descriptografa com a senha
 ```
+
+⚠️ O comando é `memoir restore` (não `memoir pull` — corrigido conforme docs oficiais).
 
 Pronto. Cursor, Claude Code, Copilot — tudo volta com as configs idênticas.
 

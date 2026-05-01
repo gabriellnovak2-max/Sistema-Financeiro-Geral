@@ -5,6 +5,16 @@
 Write-Host "🚀 Setup PC Gabriel — Sistema-Financeiro-Geral" -ForegroundColor Cyan
 Write-Host ""
 
+# Cria pasta C:\dev\ se não existir (local oficial dos projetos, fora do iCloud)
+if (-not (Test-Path "C:\dev")) {
+    Write-Host "📁 Criando C:\dev (pasta oficial dos projetos, fora do iCloud)..." -ForegroundColor Yellow
+    New-Item -ItemType Directory -Path "C:\dev" -Force | Out-Null
+    Write-Host "  ✅ C:\dev criada" -ForegroundColor Green
+} else {
+    Write-Host "📁 C:\dev já existe" -ForegroundColor Gray
+}
+Write-Host ""
+
 # Verifica se tá rodando como admin
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
@@ -43,7 +53,24 @@ $env:Path = [System.Environment]::GetEnvironmentVariable("Path","User") + ";" + 
 Write-Host ""
 Write-Host "📦 Instalando ferramentas via npm..." -ForegroundColor Yellow
 
-$npmTools = @("typescript", "tsx", "pnpm", "supabase", "vercel", "@railway/cli", "memoir-cli")
+# npm global NÃO instala Supabase CLI no Windows (não é suportado oficialmente).
+# Supabase tem que vir via Scoop. Instala Scoop PRIMEIRO.
+Write-Host "📦 Instalando Scoop (necessário pro Supabase CLI no Windows)..." -ForegroundColor Yellow
+if (-not (Get-Command scoop -ErrorAction SilentlyContinue)) {
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+    Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+} else {
+    Write-Host "  Scoop já instalado." -ForegroundColor Gray
+}
+
+Write-Host ""
+Write-Host "📦 Instalando Supabase CLI via Scoop..." -ForegroundColor Yellow
+scoop bucket add supabase https://github.com/supabase/scoop-bucket.git 2>&1 | Out-Null
+scoop install supabase
+
+Write-Host ""
+Write-Host "📦 Instalando ferramentas via npm (sem Supabase)..." -ForegroundColor Yellow
+$npmTools = @("typescript", "tsx", "pnpm", "vercel", "@railway/cli", "memoir-cli")
 foreach ($pkg in $npmTools) {
     Write-Host "  → $pkg..." -NoNewline
     npm install -g $pkg --silent 2>&1 | Out-Null
@@ -52,15 +79,6 @@ foreach ($pkg in $npmTools) {
     } else {
         Write-Host " ❌" -ForegroundColor Red
     }
-}
-
-Write-Host ""
-Write-Host "📦 Instalando Scoop (gerenciador alternativo)..." -ForegroundColor Yellow
-if (-not (Get-Command scoop -ErrorAction SilentlyContinue)) {
-    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-    Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
-} else {
-    Write-Host "  Scoop já instalado." -ForegroundColor Gray
 }
 
 Write-Host ""
