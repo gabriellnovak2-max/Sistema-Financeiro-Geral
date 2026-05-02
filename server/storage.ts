@@ -49,6 +49,11 @@ function mapCliente(row: any): Cliente {
   };
 }
 
+function toISODateKey(value: string | Date) {
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  return value.slice(0, 10);
+}
+
 function toVendaRow(v: InsertVenda) {
   return {
     data: v.data,
@@ -174,7 +179,7 @@ export const storage: IStorage = {
     const totalPendente = vendas.filter(v => v.statusPagamento === "pendente").reduce((s, v) => s + (v.valorTotal || 0), 0);
     const porDiaMap = new Map<string, { valor: number; kg: number }>();
     vendas.forEach(v => {
-      const d = v.data.substring(0, 10);
+      const d = toISODateKey(v.data);
       const cur = porDiaMap.get(d) || { valor: 0, kg: 0 };
       porDiaMap.set(d, { valor: cur.valor + (v.valorTotal || 0), kg: cur.kg + (v.quantidadeKg || 0) });
     });

@@ -18,6 +18,29 @@ function getDiasDoMes(ano: number, mes: number) {
   };
 }
 
+function normalizeVendaDate(data: Venda["data"]) {
+  if (data instanceof Date) return data.toISOString().slice(0, 10);
+  return String(data).slice(0, 10);
+}
+
+function buildVendasPorDia(vendas: Venda[], ano: number, mes: number) {
+  const mesStr = `${ano}-${String(mes + 1).padStart(2, "0")}`;
+  const vpd: Record<number, Venda[]> = {};
+
+  vendas.forEach((v) => {
+    const isoDate = normalizeVendaDate(v.data);
+    if (!isoDate.startsWith(mesStr)) return;
+
+    const dia = Number.parseInt(isoDate.substring(8, 10), 10);
+    if (Number.isNaN(dia)) return;
+
+    if (!vpd[dia]) vpd[dia] = [];
+    vpd[dia].push(v);
+  });
+
+  return vpd;
+}
+
 function useCountUp(target: number, duration = 800) {
   const [value, setValue] = useState(0);
   useEffect(() => {
@@ -93,15 +116,7 @@ function CalGrade({ vendas }: { vendas: Venda[] }) {
   const [mes, setMes] = useState(hoje.getMonth());
   const [diaSel, setDiaSel] = useState<number|null>(null);
 
-  const mesStr = `${ano}-${String(mes+1).padStart(2,"0")}`;
-  const vpd: Record<number, Venda[]> = {};
-  vendas.forEach(v => {
-    if (v.data.startsWith(mesStr)) {
-      const d = parseInt(v.data.substring(8,10));
-      if (!vpd[d]) vpd[d] = [];
-      vpd[d].push(v);
-    }
-  });
+  const vpd = buildVendasPorDia(vendas, ano, mes);
 
   const { diasAntes, total } = getDiasDoMes(ano, mes);
   const todasMes = Object.values(vpd).flat();
@@ -179,15 +194,7 @@ function CalHeatmap({ vendas }: { vendas: Venda[] }) {
   const [mes, setMes] = useState(hoje.getMonth());
   const [diaSel, setDiaSel] = useState<number|null>(null);
 
-  const mesStr = `${ano}-${String(mes+1).padStart(2,"0")}`;
-  const vpd: Record<number, Venda[]> = {};
-  vendas.forEach(v => {
-    if (v.data.startsWith(mesStr)) {
-      const d = parseInt(v.data.substring(8,10));
-      if (!vpd[d]) vpd[d] = [];
-      vpd[d].push(v);
-    }
-  });
+  const vpd = buildVendasPorDia(vendas, ano, mes);
 
   const { diasAntes, total } = getDiasDoMes(ano, mes);
   const todasMes = Object.values(vpd).flat();
@@ -293,15 +300,7 @@ function CalTimeline({ vendas }: { vendas: Venda[] }) {
   const [ano, setAno] = useState(hoje.getFullYear());
   const [mes, setMes] = useState(hoje.getMonth());
 
-  const mesStr = `${ano}-${String(mes+1).padStart(2,"0")}`;
-  const vpd: Record<number, Venda[]> = {};
-  vendas.forEach(v => {
-    if (v.data.startsWith(mesStr)) {
-      const d = parseInt(v.data.substring(8,10));
-      if (!vpd[d]) vpd[d] = [];
-      vpd[d].push(v);
-    }
-  });
+  const vpd = buildVendasPorDia(vendas, ano, mes);
 
   const todasMes = Object.values(vpd).flat();
   const kgMes = todasMes.reduce((s,v) => s+(v.quantidadeKg||0),0);
@@ -391,16 +390,7 @@ function CalDoisMeses({ vendas }: { vendas: Venda[] }) {
   const nextPar = () => { if(mesBase===11){setAnoBase(a=>a+1);setMesBase(1);}else if(mesBase>=10){setAnoBase(a=>a+1);setMesBase(0);}else setMesBase(m=>m+2); setDiaSel(null); };
 
   function getVpd(ano: number, mes: number) {
-    const mesStr = `${ano}-${String(mes+1).padStart(2,"0")}`;
-    const vpd: Record<number, Venda[]> = {};
-    vendas.forEach(v => {
-      if (v.data.startsWith(mesStr)) {
-        const d = parseInt(v.data.substring(8,10));
-        if (!vpd[d]) vpd[d] = [];
-        vpd[d].push(v);
-      }
-    });
-    return vpd;
+    return buildVendasPorDia(vendas, ano, mes);
   }
 
   const mes2 = mesBase === 11 ? 0 : mesBase + 1;
@@ -489,15 +479,7 @@ function CalSemanas({ vendas }: { vendas: Venda[] }) {
   const [ano, setAno] = useState(hoje.getFullYear());
   const [mes, setMes] = useState(hoje.getMonth());
 
-  const mesStr = `${ano}-${String(mes+1).padStart(2,"0")}`;
-  const vpd: Record<number, Venda[]> = {};
-  vendas.forEach(v => {
-    if (v.data.startsWith(mesStr)) {
-      const d = parseInt(v.data.substring(8,10));
-      if (!vpd[d]) vpd[d] = [];
-      vpd[d].push(v);
-    }
-  });
+  const vpd = buildVendasPorDia(vendas, ano, mes);
 
   const { diasAntes, total } = getDiasDoMes(ano, mes);
   const todasMes = Object.values(vpd).flat();
@@ -592,15 +574,7 @@ function CalAgenda({ vendas }: { vendas: Venda[] }) {
   const [ano, setAno] = useState(hoje.getFullYear());
   const [mes, setMes] = useState(hoje.getMonth());
 
-  const mesStr = `${ano}-${String(mes+1).padStart(2,"0")}`;
-  const vpd: Record<number, Venda[]> = {};
-  vendas.forEach(v => {
-    if (v.data.startsWith(mesStr)) {
-      const d = parseInt(v.data.substring(8,10));
-      if (!vpd[d]) vpd[d] = [];
-      vpd[d].push(v);
-    }
-  });
+  const vpd = buildVendasPorDia(vendas, ano, mes);
 
   const todasMes = Object.values(vpd).flat();
   const kgMes = todasMes.reduce((s,v)=>s+(v.quantidadeKg||0),0);
