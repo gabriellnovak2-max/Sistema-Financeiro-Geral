@@ -1,9 +1,23 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Cliente, InsertCliente, Venda, InsertVenda } from "@shared/schema";
 
-const supabaseUrl = process.env.SUPABASE_URL || 'https://ekmjyubgknfssoqafxri.supabase.co';
-const supabaseKey = process.env.SUPABASE_SECRET_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error("[storage] SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY ausentes. Rotas de dados retornarão erro.");
+}
+
+const supabase = supabaseUrl && supabaseKey
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
+
+function db() {
+  if (!supabase) {
+    throw new Error("Supabase não configurado: defina SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY");
+  }
+  return supabase;
+}
 
 function mapVenda(row: any): Venda {
   return {
@@ -79,17 +93,17 @@ export interface IStorage {
 
 export const storage: IStorage = {
   async getVendas() {
-    const { data, error } = await supabase.from('vendas').select('*').order('data', { ascending: false });
+    const { data, error } = await db().from('vendas').select('*').order('data', { ascending: false });
     if (error) throw error;
     return (data || []).map(mapVenda);
   },
   async getVenda(id) {
-    const { data, error } = await supabase.from('vendas').select('*').eq('id', id).single();
+    const { data, error } = await db().from('vendas').select('*').eq('id', id).single();
     if (error) return undefined;
     return data ? mapVenda(data) : undefined;
   },
   async createVenda(venda) {
-    const { data, error } = await supabase.from('vendas').insert(toVendaRow(venda)).select().single();
+    const { data, error } = await db().from('vendas').insert(toVendaRow(venda)).select().single();
     if (error) throw error;
     return mapVenda(data);
   },
@@ -109,20 +123,20 @@ export const storage: IStorage = {
     if (venda.emitirNota !== undefined) row.emitir_nota = venda.emitirNota;
     if (venda.observacoes !== undefined) row.observacoes = venda.observacoes;
     if (venda.parcelas !== undefined) row.parcelas = venda.parcelas;
-    const { data, error } = await supabase.from('vendas').update(row).eq('id', id).select().single();
+    const { data, error } = await db().from('vendas').update(row).eq('id', id).select().single();
     if (error) return undefined;
     return data ? mapVenda(data) : undefined;
   },
   async deleteVenda(id) {
-    await supabase.from('vendas').delete().eq('id', id);
+    await db().from('vendas').delete().eq('id', id);
   },
   async getClientes() {
-    const { data, error } = await supabase.from('clientes').select('*');
+    const { data, error } = await db().from('clientes').select('*');
     if (error) throw error;
     return (data || []).map(mapCliente);
   },
   async getCliente(id) {
-    const { data, error } = await supabase.from('clientes').select('*').eq('id', id).single();
+    const { data, error } = await db().from('clientes').select('*').eq('id', id).single();
     if (error) return undefined;
     return data ? mapCliente(data) : undefined;
   },
@@ -133,7 +147,7 @@ export const storage: IStorage = {
       telefone: cliente.telefone ?? null,
       endereco: cliente.endereco ?? null,
     };
-    const { data, error } = await supabase.from('clientes').insert(row).select().single();
+    const { data, error } = await db().from('clientes').insert(row).select().single();
     if (error) throw error;
     return mapCliente(data);
   },
@@ -143,15 +157,15 @@ export const storage: IStorage = {
     if (cliente.cpfCnpj !== undefined) row.cpf_cnpj = cliente.cpfCnpj;
     if (cliente.telefone !== undefined) row.telefone = cliente.telefone;
     if (cliente.endereco !== undefined) row.endereco = cliente.endereco;
-    const { data, error } = await supabase.from('clientes').update(row).eq('id', id).select().single();
+    const { data, error } = await db().from('clientes').update(row).eq('id', id).select().single();
     if (error) return undefined;
     return data ? mapCliente(data) : undefined;
   },
   async deleteCliente(id) {
-    await supabase.from('clientes').delete().eq('id', id);
+    await db().from('clientes').delete().eq('id', id);
   },
   async getStats() {
-    const { data: todasVendas } = await supabase.from('vendas').select('*');
+    const { data: todasVendas } = await db().from('vendas').select('*');
     const vendas = (todasVendas || []).map(mapVenda);
     const totalVendas = vendas.length;
     const totalKg = vendas.reduce((s, v) => s + (v.quantidadeKg || 0), 0);
