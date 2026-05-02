@@ -93,6 +93,35 @@ ERP em construção da **Patrocínio Café** (Goiânia-GO).
 - `.cursor/BUGBOT.md` — regras de revisão automática (Bugbot)
 - `.cursor/rules/*.mdc` — regras técnicas por domínio
 
+## Cursor Cloud specific instructions
+
+### Environment
+
+- Node.js 22.12.0 is installed via NVM. On every session, source NVM before running any node/npm command: `export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh"`.
+- The update script runs `nvm install 22.12.0 --default && nvm use 22.12.0 && npm ci` automatically.
+
+### Running the dev server
+
+- `npm run dev` starts a single Express server on port 5000 that serves both the REST API and the React SPA (via Vite middleware with HMR).
+- The `--env-file=.env` flag loads environment variables from `.env` at the repo root. A `.env` file must exist with at least `SUPABASE_URL` and `VITE_SUPABASE_URL` for the app to start correctly.
+- Without `SUPABASE_SERVICE_ROLE_KEY`, the server starts but data routes (`/api/vendas`, `/api/clientes`, etc.) throw errors. The health endpoint (`/api/health`) always works.
+
+### Supabase credentials
+
+- `SUPABASE_URL` and `VITE_SUPABASE_URL` are the same value: `https://ekmjyubgknfssoqafxri.supabase.co`.
+- `VITE_SUPABASE_PUBLISHABLE_KEY` (anon key) can be fetched via the Supabase MCP (`get_publishable_keys` for project `ekmjyubgknfssoqafxri`).
+- `SUPABASE_SERVICE_ROLE_KEY` is a secret — must be provided via Cursor Secrets or by the user. Without it, all data operations fail (503/error).
+
+### Canonical commands
+
+Refer to the "Comandos canônicos" table in this file. Key ones: `npm run dev` (dev), `npm run build` (build), `npm run check` (typecheck). There is no test suite configured.
+
+### Gotchas
+
+- The project uses `"type": "module"` (ESM). `jose` is ESM-only — never try to `require()` it.
+- Build tools (`tsx`, `typescript`, `esbuild`, `vite`, `cross-env`) are in `dependencies` (not `devDependencies`) because Railway skips devDependencies. Do not move them.
+- The `.env` file is gitignored — it must be created from `.env.example` on each fresh VM if not already present.
+
 ## Quando AGENTS.md aninhado se aplica
 
 Se houver `AGENTS.md` em subdiretório (ex: `server/AGENTS.md`), o agente lê o **mais próximo** do arquivo que está editando. Hoje o repo só tem este AGENTS.md raiz.
