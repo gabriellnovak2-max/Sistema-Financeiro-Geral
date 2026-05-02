@@ -1,0 +1,34 @@
+---
+description: Regras de JWT com biblioteca jose (ESM-only)
+globs: ["server/**/*.ts", "client/src/lib/queryClient.ts", "client/src/lib/supabase.ts"]
+alwaysApply: false
+---
+
+# JWT com jose
+
+`jose` v5+ é **ESM-only**. Em projetos CommonJS ou Node `< 20.19 / 22.12` dá `ERR_REQUIRE_ESM` em runtime.
+
+## SEMPRE
+- Importar via `import { ... } from 'jose'` (ESM).
+- Garantir que Node de runtime é >= 22.12 (forçado em `nixpacks.toml` e `.node-version`).
+- Usar `createRemoteJWKSet` + `jwtVerify` para verificar tokens Supabase.
+- Algoritmo `ES256` (assimétrico, JWKS público do Supabase).
+- Audience `authenticated`, issuer `${SUPABASE_URL}/auth/v1`.
+
+## NUNCA
+- `const jose = require('jose')` em código CJS rodando em Node < 22.12.
+- Substituir `jose` por `jsonwebtoken` (decisão técnica do projeto).
+- Hardcodear chave pública JWKS — sempre buscar via `createRemoteJWKSet`.
+- Aceitar token sem `algorithms: ["ES256"]` explícito (evita bypass `alg: none`).
+
+## Padrão correto (referência)
+
+Ver `server/middleware/requireAuth.ts` (commit `bc3a3cb` em diante).
+Boot gracioso: se `SUPABASE_URL` faltar, log warn + retornar 503 nas rotas — NUNCA throw top-level.
+
+## Se ver ERR_REQUIRE_ESM no Railway
+1. Conferir runtime: log de boot deve mostrar Node >= 22.12.
+2. Conferir `.node-version` = `22.12.0` (ou superior).
+3. Conferir `nixpacks.toml` = `nodejs_22` no `[phases.setup]`.
+4. NÃO downgrade `jose` para v4 sem aprovação.
+5. Conferir `docs/etapas/ETAPA-RAILWAY-FIX-NODE22.md` para histórico do fix.

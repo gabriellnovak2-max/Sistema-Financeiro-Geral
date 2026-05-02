@@ -1,0 +1,58 @@
+---
+description: Erros recorrentes documentados — bloquear no início
+alwaysApply: true
+---
+
+# Erros recorrentes — bloqueio preventivo
+
+Cada item abaixo nasceu de um bug real do projeto. **Sempre** verificar antes de propor solução.
+
+## TypeScript em devDependencies
+ERRO: `tsc not found` ou `tsx not found` no build do Railway.
+SOLUÇÃO: `tsc`/`typescript`/`tsx`/`esbuild`/`vite`/`cross-env` em `dependencies`. Ver `04-typescript.mdc`.
+
+## Schema mismatch Supabase
+ANTES de qualquer query mudar, conferir tipo da coluna no banco real (Supabase MCP ou painel).
+NUNCA assumir que coluna existe ou que tipo é o que `shared/schema.ts` afirma.
+Cicatriz: `vendas.data` foi `text` no schema enquanto o banco era `timestamp`.
+
+## CORS Express
+SEMPRE `app.use(cors({ origin: <regex/lista>, credentials: true }))`.
+NUNCA `cors()` sem opções em produção. NUNCA `origin: '*'` (regra 1.6 do BUGBOT).
+
+## JWT jose (ESM/CJS)
+Já documentado em `01-jwt-jose.mdc`. Resumo: Node >= 22.12 OBRIGATÓRIO.
+Se ver `ERR_REQUIRE_ESM`, conferir `.node-version` e `nixpacks.toml` antes de mexer em código.
+
+## Confundir Node 20 com Node 22
+Sempre rodar `node -v` antes de assumir versão.
+Verificar `nixpacks.toml` (Railway) e `.node-version` (local) — ambos `22.x`.
+Cursor às vezes roda Node 22.22 enquanto Gabriel local tem Node 24 — não é igual ao runtime Railway.
+
+## "Fix em cima de fix"
+SE encontrar mais de 5 commits "fix" em sequência sem prova objetiva (curl/log/teste passando):
+1. **PARAR.**
+2. Abrir PR descrevendo o sintoma original.
+3. Propor rollback para commit estável conhecido (`6d90040` é o último estável de produção).
+4. Não acumular mais fix sobre fix.
+
+## Throw top-level em módulo
+NUNCA `throw new Error()` no escopo de módulo (fora de função).
+Em vez disso: `console.error()` + retornar fallback gracioso (503 nas rotas, null no client).
+Cicatriz: `requireAuth.ts` e `storage.ts` derrubavam container Railway no boot quando faltava env. Custou 3 dias.
+
+## Repo dentro de iCloud/OneDrive/Dropbox
+NUNCA clonar repo em pasta sincronizada por iCloud/OneDrive/Dropbox.
+Sync corrompe `.git` em segundos. Cicatriz #1 do projeto (Plano C de re-clone).
+Caminho oficial: `C:\dev\Sistema-Financeiro-Geral` (Windows) ou `~/dev/Sistema-Financeiro-Geral` (mac/linux).
+
+## Background Agent sem blindagem
+NUNCA soltar Background Agent em repo sem:
+- Branch protection ativo
+- AGENTS.md
+- .cursor/rules/* completas
+- .cursor/hooks.json com bloqueio de comandos destrutivos
+- Bugbot habilitado
+- .cursorignore
+
+Caso PocketOS (abr/2026): agente Cursor + Claude apagou banco de produção em 9s no Railway por falta dessa governança.

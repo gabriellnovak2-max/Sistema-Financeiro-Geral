@@ -1,0 +1,18 @@
+{
+  "install": "bash .cursor/install.sh",
+  "start": "bash .cursor/start.sh",
+  "terminals": [
+    {
+      "name": "typecheck",
+      "command": "npm run check"
+    },
+    {
+      "name": "smoke-jose",
+      "command": "node -e \"import('jose').then(j => console.log('jose OK:', Object.keys(j).length, 'exports'))\""
+    },
+    {
+      "name": "node-version",
+      "command": "node -v && npm -v"
+    }
+  ]
+}

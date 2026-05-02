@@ -1,0 +1,90 @@
+name: validate-pr
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.12.0'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Build (frontend + server bundle)
+        run: npm run build
+
+      - name: Smoke jose ESM
+        run: node -e "import('jose').then(j => console.log('jose OK:', Object.keys(j).length, 'exports'))"
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.12.0'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Type check
+        run: npm run check
+
+  smoke-deploy-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validar .node-version
+        run: |
+          test -f .node-version
+          grep -Eq '^22\.' .node-version
+
+      - name: Validar nixpacks.toml
+        run: |
+          test -f nixpacks.toml
+          grep -q "nodejs_22" nixpacks.toml
+
+      - name: Validar railway.toml
+        run: |
+          test -f railway.toml
+          grep -q "NIXPACKS\|RAILPACK" railway.toml
+
+  guard-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Bloquear .env commitado
+        run: |
+          if git diff --name-only origin/main...HEAD 2>/dev/null | grep -E '^\.env(\.|$)' | grep -v '\.env\.example'; then
+            echo "ERRO: .env detectado no diff. Use .env.example."
+            exit 1
+          fi
+
+      - name: Bloquear ARG sensivel em nixpacks/Dockerfile
+        run: |
+          if grep -REn 'ARG\s+\w*(KEY|SECRET|TOKEN|PASSWORD)\w*' nixpacks.toml Dockerfile 2>/dev/null; then
+            echo "ERRO: ARG com nome sensivel. Use variavel de runtime no painel."
+            exit 1
+          fi

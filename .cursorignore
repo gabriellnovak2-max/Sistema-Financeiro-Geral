@@ -1,0 +1,37 @@
+# Defesa em profundidade - bloqueia upload pro modelo
+# .cursorignore esconde arquivos do agente, mesmo se nao estiverem no .gitignore
+
+.env
+.env.*
+!.env.example
+.envrc
+*.pem
+*.key
+*.pfx
+*.p12
+**/credentials*
+.aws/
+.gcp/
+.azure/
+
+supabase/.branches/
+supabase/.temp/
+.supabase/
+
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+.vite/
+
+*.log
+npm-debug.log*
+
+.git.backup-*/
+
+*.db
+*.sqlite
+*.sqlite3
+data/
+backups/

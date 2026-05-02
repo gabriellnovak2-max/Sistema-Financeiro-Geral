@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      { "command": "bash .cursor/hooks/block-destructive.sh" }
+    ],
+    "afterFileEdit": [
+      { "command": "bash .cursor/hooks/block-secret-files.sh" }
+    ],
+    "stop": [
+      { "command": "bash .cursor/hooks/run-typecheck.sh" }
+    ]
+  }
+}

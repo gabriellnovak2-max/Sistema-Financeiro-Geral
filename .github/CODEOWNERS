@@ -1,0 +1,16 @@
+# CODEOWNERS - Sistema Financeiro Geral
+# Toda alteracao requer revisao do Gabriel (ou Bugbot autorizado).
+
+* @gabriellnovak2-max
+
+# Areas criticas: revisao reforcada
+/server/middleware/        @gabriellnovak2-max
+/server/storage.ts         @gabriellnovak2-max
+/shared/schema.ts          @gabriellnovak2-max
+/supabase/migrations/      @gabriellnovak2-max
+/nixpacks.toml             @gabriellnovak2-max
+/.node-version             @gabriellnovak2-max
+/railway.toml              @gabriellnovak2-max
+/.github/                  @gabriellnovak2-max
+/.cursor/                  @gabriellnovak2-max
+/AGENTS.md                 @gabriellnovak2-max

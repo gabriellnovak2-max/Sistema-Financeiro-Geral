@@ -1,0 +1,40 @@
+---
+description: Stack canônico do Sistema Financeiro Geral
+alwaysApply: true
+---
+
+# Stack Canônico — NÃO TROCAR
+
+## Frontend
+- React 18.x
+- TypeScript 5.x strict mode
+- Vite 7 (NÃO usar Webpack, NÃO usar CRA, NÃO usar Next)
+- Tailwind v3 (NÃO migrar para v4 sem ordem explícita)
+- shadcn/ui (componentes copiados em `client/src/components/ui/`, não pacote NPM)
+- wouter (NÃO trocar por react-router)
+- TanStack Query via `client/src/lib/queryClient.ts` (NÃO usar fetch direto em componentes)
+
+## Backend
+- Node.js 22.x (forçado via `nixpacks.toml` + `.node-version`)
+- Express 5 (NÃO usar Fastify, NÃO usar Koa)
+- Drizzle ORM (NÃO usar Prisma direto)
+- Zod (validação obrigatória em rotas POST/PATCH)
+- `jose` para JWT ES256 (NÃO trocar por `jsonwebtoken`)
+
+## Banco
+- Supabase Postgres
+- RLS habilitado em todas as tabelas (NÃO substituir por filtro server-side)
+- service_role key SOMENTE em variável de ambiente do Railway
+
+## Deploy
+- Vercel (frontend) — NÃO migrar
+- Railway (backend Express via Nixpacks `nodejs_22`) — NÃO migrar para Render/Fly.io
+
+## VCS
+- GitHub, branch `main` protegida
+- PRs obrigatórios
+- Bugbot revisando antes do merge
+
+## Regra absoluta
+NUNCA sugira mudança de stack. Se algo do stack está bugado, **conserte DENTRO do stack**.
+Se realmente precisar mudar, abra issue e espere aprovação explícita do Gabriel.

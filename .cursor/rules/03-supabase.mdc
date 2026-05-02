@@ -1,0 +1,42 @@
+---
+description: Regras Supabase (RLS, schema, migrations)
+globs: ["supabase/**", "**/*.sql", "client/src/lib/supabase.ts", "server/storage.ts", "shared/schema.ts"]
+alwaysApply: false
+---
+
+# Supabase
+
+## Contexto
+Project: `ekmjyubgknfssoqafxri`.
+5 tabelas core: `clientes`, `vendas`, `contas_pagar`, `contas_receber`, `lancamentos`.
+RLS ligado nas 5 com policy `authenticated_all_*` (atual: permissiva pra usuário autenticado, refinar para `empresa_id`/`user_id` quando entrar multi-tenant).
+
+## SEMPRE
+- TODA tabela nova DEVE ter RLS habilitado **antes** de receber dados.
+- Migration via arquivo em `supabase/migrations/<timestamp>_<descrição>.sql` + PR.
+- Migration deve ser **idempotente** (`CREATE INDEX IF NOT EXISTS`, `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`).
+- Antes de qualquer query mudar, regerar tipos via Supabase MCP/CLI.
+- Backend usa `SUPABASE_SERVICE_ROLE_KEY` (server-only).
+- Frontend usa `VITE_SUPABASE_PUBLISHABLE_KEY` (com fallback `VITE_SUPABASE_ANON_KEY`) — SOMENTE para Auth.
+
+## NUNCA
+- Usar `service_role` no frontend (vazaria pra cliente final).
+- Rodar `supabase db reset` em produção.
+- Mudar schema sem PR + revisão.
+- Frontend chamar `supabase.from('vendas')` ou outras tabelas de negócio direto — sempre via backend Express + `requireAuth` (regra 3.2 do BUGBOT).
+- Importar `@supabase/supabase-js` fora de `client/src/lib/supabase.ts` (regra 3.1 do BUGBOT).
+
+## Estado atual de RLS e índices
+
+Auditável via `supabase/audits/auditoria_fase1.sql`:
+- 5 policies `authenticated_all_*` (uma por tabela)
+- 11 índices `idx_*` distribuídos:
+  - `vendas`: 3 (cliente_id, data DESC, status_pagamento)
+  - `contas_pagar`: 2 (data_vencimento, status)
+  - `contas_receber`: 4 (cliente_id, venda_id, data_vencimento, status)
+  - `lancamentos`: 2 (data_lancamento DESC, tipo)
+
+## Tipo de dado: data sempre `timestamptz`
+
+Coluna `data`/`criado_em`/`vencimento`/`pagamento` no Drizzle: SEMPRE `timestamp({ withTimezone: true })`.
+Bug histórico: `vendas.data` estava como `text()` no Drizzle quando o banco já era `timestamptz` — deu schema mentindo por semanas. Cicatriz #1 do BUGBOT regra 6.1.

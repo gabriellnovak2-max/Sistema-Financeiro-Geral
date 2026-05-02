@@ -1,0 +1,48 @@
+---
+description: TypeScript / build hygiene
+globs: ["**/*.ts", "**/*.tsx", "package.json", "tsconfig.json"]
+alwaysApply: false
+---
+
+# TypeScript
+
+## Configuração
+- `strict: true` sempre (já está em `tsconfig.json`).
+- Após qualquer edição em `.ts`/`.tsx`, rodar `npm run check` (executa `tsc`).
+- Se aparecer erro de tipagem, NÃO usar `any` — usar `unknown` ou tipo explícito.
+
+## Posição em package.json — REGRA OBRIGATÓRIA
+
+Os pacotes abaixo DEVEM ficar em `dependencies`, NUNCA em `devDependencies`:
+- `tsx`
+- `typescript`
+- `@types/node`
+- `esbuild`
+- `vite`
+- `cross-env`
+
+**Por quê:** Railway/Nixpacks pula `devDependencies` quando `NODE_ENV=production`. Sem essas deps em `dependencies`, build morre com `tsx: not found` ou `Cannot find package '@vitejs/plugin-react'`.
+
+Histórico: 7+ deploys falhados antes de mover (commit `a566f0f`, `da0bb20`, `f732863`).
+
+## Scripts em package.json
+
+Sempre usar caminho absoluto para `tsx` em `dev`/`build`/`start`:
+```json
+"dev": "cross-env NODE_ENV=development node --env-file=.env node_modules/tsx/dist/cli.mjs server/index.ts",
+"build": "node node_modules/tsx/dist/cli.mjs script/build.ts"
+```
+
+NUNCA: `"build": "tsx script/build.ts"` (Railway PATH não acha).
+
+## Datas em código TS
+
+Coluna `data` do Drizzle hoje é `timestamp` (objeto `Date` no TypeScript). NUNCA chamar `.startsWith()` ou `.substring()` direto em `Date` — converter para string ISO primeiro.
+
+Padrão correto (ver `server/storage.ts` e `client/src/pages/Calendario.tsx` após commit `4307fe4`):
+```ts
+function toISODateKey(value: string | Date) {
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  return value.slice(0, 10);
+}
+```
