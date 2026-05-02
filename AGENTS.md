@@ -110,7 +110,7 @@ ERP em construção da **Patrocínio Café** (Goiânia-GO).
 
 - `SUPABASE_URL` and `VITE_SUPABASE_URL` are the same value: `https://ekmjyubgknfssoqafxri.supabase.co`.
 - `VITE_SUPABASE_PUBLISHABLE_KEY` (anon key) can be fetched via the Supabase MCP (`get_publishable_keys` for project `ekmjyubgknfssoqafxri`).
-- `SUPABASE_SERVICE_ROLE_KEY` is a secret — must be provided via Cursor Secrets or by the user. Without it, all data operations fail (503/error).
+- `SUPABASE_SERVICE_ROLE_KEY` is a secret — must be provided via Cursor Secrets or by the user. Without it, all data operations fail (503/error). The key is a full JWT (~200 chars, starts with `eyJ...`). If the secret value is short or doesn't look like a JWT, it's a placeholder and won't work.
 
 ### Canonical commands
 
@@ -120,7 +120,9 @@ Refer to the "Comandos canônicos" table in this file. Key ones: `npm run dev` (
 
 - The project uses `"type": "module"` (ESM). `jose` is ESM-only — never try to `require()` it.
 - Build tools (`tsx`, `typescript`, `esbuild`, `vite`, `cross-env`) are in `dependencies` (not `devDependencies`) because Railway skips devDependencies. Do not move them.
-- The `.env` file is gitignored — it must be created from `.env.example` on each fresh VM if not already present.
+- The `.env` file is gitignored — it must be created from `.env.example` on each fresh VM if not already present. Use Supabase MCP to fetch `SUPABASE_URL` (`get_project_url`) and `VITE_SUPABASE_PUBLISHABLE_KEY` (`get_publishable_keys`). `SUPABASE_SERVICE_ROLE_KEY` must come from Cursor Secrets.
+- The auth middleware (`requireAuth`) verifies JWTs via Supabase JWKS (`ES256`). The health endpoint `/api/health` is public; all other `/api/*` routes require a valid Supabase Auth JWT.
+- A test user exists: `cursor.etapa13.1776992552337@example.com` / `CloudTest2026!` (confirmed in Supabase). Can be used for login testing.
 
 ## Quando AGENTS.md aninhado se aplica
 
