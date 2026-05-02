@@ -18,14 +18,14 @@
 | Fase | Módulo | Etapas | Status |
 |---|---|---|---|
 | 0 | Arquitetura + Superpoderes IA | 7 (4+3🆕) | 🔴 Não iniciada |
-| 1 | Blindagem (Segurança) | 10 | 🔴 **Próxima a executar** |
+| 1 | Blindagem (Segurança) | 10 | 🟢 Core concluido (1.1-1.5, 1.9, 1.10) |
 | 2 | Financeiro | 9 | 🔴 Pendente |
 | 3 | Estoque / Produção | 6 | 🔴 Pendente |
 | 4 | Fiscal | 4 | 🔴 Pendente |
 | 5 | IA + n8n + WhatsApp | 11 (8+3🆕) | 🔴 Pendente |
 | 6 | BI (Relatórios) | 4 | 🔴 Pendente |
 | 7 | Mobile + Roles | 4 | 🔴 Pendente |
-| | **TOTAL** | **55** | **0 concluídas** |
+| | **TOTAL** | **55** | **7 concluidas (blindagem core)** |
 
 > Antes era 49. Agora é 55. **+6 etapas** vindas da pesquisa Ultra Link 2026: Bugbot, MCP, Cursor Automations, bot WhatsApp por áudio, cobrança PIX automática, Cloud Agents.
 
@@ -91,46 +91,47 @@
 
 ---
 
-# 🛡️ FASE 1 — BLINDAGEM (10 etapas) — FASE ATIVA
+# 🛡️ FASE 1 — BLINDAGEM (10 etapas) — CORE CONCLUIDO
 
-## 1.1 — Middleware JWT ES256 no backend 🔜 PRÓXIMA A EXECUTAR
+## 1.1 — Middleware JWT ES256 no backend ✅ CONCLUIDA
 - **O que faz:** `server/middleware/requireAuth.ts` usando `jose` + JWKS Supabase. Aplicar em `/api/*` exceto `/api/health`.
 - **Risco se pular:** CRÍTICO — sistema invadível.
 
-## 1.2 — Frontend manda Bearer token
+## 1.2 — Frontend manda Bearer token ✅ CONCLUIDA
 - **O que faz:** `src/lib/apiClient.ts` injeta `Authorization: Bearer <token>` em todo fetch.
 - **Depende de:** 1.1.
 
-## 1.3 — Validação Zod em PATCH/POST
+## 1.3 — Validação Zod em PATCH/POST ✅ CONCLUIDA
 - **O que faz:** Schemas Zod por rota. Middleware `validate(schema)`.
 - **Risco se pular:** Alto.
 
-## 1.4 — Aposentar `server/db.ts` antigo
+## 1.4 — Aposentar `server/db.ts` antigo ✅ CONCLUIDA
 - **O que faz:** Remover conexão direta `pg`. Tudo via `@supabase/supabase-js`.
 - **Depende de:** 1.3.
 
-## 1.5 — `PUBLISHABLE_KEY` + JWT do usuário no frontend
+## 1.5 — `PUBLISHABLE_KEY` + JWT do usuario no frontend ✅ CONCLUIDA
 - **O que faz:** Trocar `SUPABASE_ANON_KEY` por `sb_publishable_*` (2025).
 - **Depende de:** 1.1, 1.2.
 
-## 1.6 — Persistir Produtos no Supabase
+## 1.6 — Persistir Produtos no Supabase ⏸️ ADIADA
 - **Depende de:** 1.5.
 
-## 1.7 — Persistir Metas no Supabase
+## 1.7 — Persistir Metas no Supabase ⏸️ ADIADA
 - **Depende de:** 1.5.
 
-## 1.8 — Persistir Configurações no Supabase
+## 1.8 — Persistir Configuracoes no Supabase ⏸️ ADIADA
 - **Depende de:** 1.5.
 
-## 1.9 — Migration coluna `data` text → date
+## 1.9 — Migration coluna `data` text -> date ✅ CONCLUIDA (schema + runtime)
 - **⚠️ ATENÇÃO:** Migration irreversível. Backup obrigatório antes.
 - **Depende de:** 1.6-1.8.
 
-## 1.10 — RLS refinado + índices
+## 1.10 — RLS refinado + indices ✅ CONCLUIDA
 - **O que faz:** Policies por `empresa_id` + índices em `empresa_id`, `created_at`, `user_id`.
 - **Risco se pular:** CRÍTICO.
 - **Depende de:** 0.4 + 1.1-1.9.
-- **✅ FECHA A FASE 1.**
+- **Status atual:** blindagem core fechada e validada em producao.
+- **Nota:** Etapas 1.6, 1.7 e 1.8 foram adiadas por dependencia de modelagem/tabelas e entram no planejamento da Fase 2.
 
 ---
 

@@ -17,3 +17,10 @@ Nao assumir fatos externos (NT, data de obrigacao, preco de API) sem fonte ofici
 
 ## ALERTA 5 (migracao)
 Mudanca `text -> date` e sensivel. Exigir backup, plano de rollback e janela controlada.
+
+## ALERTA 6 (deploy/railway)
+`jose` em runtime com bundle CommonJS pode quebrar em Node antigo com `ERR_REQUIRE_ESM`.
+Padrao obrigatorio para producao Railway:
+- `.node-version` em `22.12.0`
+- `nixpacks.toml` forcando `nodejs_22`
+- validar deploy com prova objetiva: `/api/health` 200 e rota protegida 401
