@@ -4,13 +4,12 @@ import { createRemoteJWKSet, jwtVerify } from "jose";
 const SUPABASE_URL = process.env.SUPABASE_URL;
 
 if (!SUPABASE_URL) {
-  throw new Error("SUPABASE_URL não definida no .env");
+  console.error("[requireAuth] SUPABASE_URL não definida. Auth desabilitado — rotas protegidas retornarão 503.");
 }
 
-// JWKS remoto do Supabase (chaves públicas pra validar assinatura)
-const JWKS = createRemoteJWKSet(
-  new URL(`${SUPABASE_URL}/auth/v1/.well-known/jwks.json`)
-);
+const JWKS = SUPABASE_URL
+  ? createRemoteJWKSet(new URL(`${SUPABASE_URL}/auth/v1/.well-known/jwks.json`))
+  : null;
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -26,6 +25,10 @@ export async function requireAuth(
   next: NextFunction
 ) {
   try {
+    if (!JWKS || !SUPABASE_URL) {
+      return res.status(503).json({ error: "Servidor sem configuração de auth (SUPABASE_URL ausente)" });
+    }
+
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
