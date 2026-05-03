@@ -202,7 +202,7 @@ export const storage: IStorage = {
   async getStats(scope) {
     const scopedQuery = withScope(db().from('vendas').select('*'), scope);
     const { data: todasVendas } = await scopedQuery;
-    const vendas = (todasVendas || []).map(mapVenda);
+    const vendas: Venda[] = (todasVendas || []).map(mapVenda);
     const totalVendas = vendas.length;
     const totalKg = vendas.reduce((s, v) => s + (v.quantidadeKg || 0), 0);
     const totalValor = vendas.reduce((s, v) => s + (v.valorTotal || 0), 0);

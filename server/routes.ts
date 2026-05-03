@@ -28,7 +28,8 @@ export function registerRoutes(httpServer: Server, app: Express) {
   });
   app.patch("/api/vendas/:id", async (req: AuthenticatedRequest, res) => {
     if (!req.user?.id) return res.status(401).json({ error: "Usuário não autenticado" });
-    const id = parseInt(req.params.id);
+    const rawId = req.params.id;
+    const id = parseInt(Array.isArray(rawId) ? rawId[0] : rawId, 10);
     const parsed = patchVendaSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ error: "Dados inválidos", issues: parsed.error.issues });
@@ -41,7 +42,9 @@ export function registerRoutes(httpServer: Server, app: Express) {
   });
   app.delete("/api/vendas/:id", async (req: AuthenticatedRequest, res) => {
     if (!req.user?.id) return res.status(401).json({ error: "Usuário não autenticado" });
-    await storage.deleteVenda({ userId: req.user.id, empresaId: req.user.empresaId }, parseInt(req.params.id));
+    const rawId = req.params.id;
+    const id = parseInt(Array.isArray(rawId) ? rawId[0] : rawId, 10);
+    await storage.deleteVenda({ userId: req.user.id, empresaId: req.user.empresaId }, id);
     res.json({ ok: true });
   });
   app.get("/api/clientes", async (req: AuthenticatedRequest, res) => {
@@ -64,7 +67,8 @@ export function registerRoutes(httpServer: Server, app: Express) {
   });
   app.patch("/api/clientes/:id", async (req: AuthenticatedRequest, res) => {
     if (!req.user?.id) return res.status(401).json({ error: "Usuário não autenticado" });
-    const id = parseInt(req.params.id);
+    const rawId = req.params.id;
+    const id = parseInt(Array.isArray(rawId) ? rawId[0] : rawId, 10);
     const parsed = patchClienteSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ error: "Dados inválidos", issues: parsed.error.issues });
@@ -77,7 +81,9 @@ export function registerRoutes(httpServer: Server, app: Express) {
   });
   app.delete("/api/clientes/:id", async (req: AuthenticatedRequest, res) => {
     if (!req.user?.id) return res.status(401).json({ error: "Usuário não autenticado" });
-    await storage.deleteCliente({ userId: req.user.id, empresaId: req.user.empresaId }, parseInt(req.params.id));
+    const rawId = req.params.id;
+    const id = parseInt(Array.isArray(rawId) ? rawId[0] : rawId, 10);
+    await storage.deleteCliente({ userId: req.user.id, empresaId: req.user.empresaId }, id);
     res.json({ ok: true });
   });
   app.get("/api/stats", async (req: AuthenticatedRequest, res) => {
