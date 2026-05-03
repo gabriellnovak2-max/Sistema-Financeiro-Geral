@@ -18,6 +18,7 @@ export interface AuthenticatedRequest extends Request {
     id: string;
     email?: string;
     role?: string;
+    empresaId?: string;
   };
 }
 
@@ -48,10 +49,17 @@ export async function requireAuth(
       algorithms: ["ES256"],
     });
 
+    const empresaIdClaim = payload["empresa_id"];
+    const empresaId =
+      typeof empresaIdClaim === "string" && empresaIdClaim.length > 0
+        ? empresaIdClaim
+        : undefined;
+
     req.user = {
       id: payload.sub as string,
       email: payload.email as string | undefined,
       role: payload.role as string | undefined,
+      empresaId,
     };
 
     next();

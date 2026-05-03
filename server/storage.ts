@@ -73,18 +73,30 @@ function toVendaRow(v: InsertVenda) {
   };
 }
 
+export interface RequestScope {
+  userId: string;
+  empresaId?: string;
+}
+
+function withScope(query: any, scope: RequestScope) {
+  if (scope.empresaId) {
+    return query.eq("empresa_id", scope.empresaId);
+  }
+  return query.eq("user_id", scope.userId);
+}
+
 export interface IStorage {
-  getVendas(): Promise<Venda[]>;
-  getVenda(id: number): Promise<Venda | undefined>;
-  createVenda(venda: InsertVenda): Promise<Venda>;
-  updateVenda(id: number, venda: Partial<InsertVenda>): Promise<Venda | undefined>;
-  deleteVenda(id: number): Promise<void>;
-  getClientes(): Promise<Cliente[]>;
-  getCliente(id: number): Promise<Cliente | undefined>;
-  createCliente(cliente: InsertCliente): Promise<Cliente>;
-  updateCliente(id: number, cliente: Partial<InsertCliente>): Promise<Cliente | undefined>;
-  deleteCliente(id: number): Promise<void>;
-  getStats(): Promise<{
+  getVendas(scope: RequestScope): Promise<Venda[]>;
+  getVenda(scope: RequestScope, id: number): Promise<Venda | undefined>;
+  createVenda(scope: RequestScope, venda: InsertVenda): Promise<Venda>;
+  updateVenda(scope: RequestScope, id: number, venda: Partial<InsertVenda>): Promise<Venda | undefined>;
+  deleteVenda(scope: RequestScope, id: number): Promise<void>;
+  getClientes(scope: RequestScope): Promise<Cliente[]>;
+  getCliente(scope: RequestScope, id: number): Promise<Cliente | undefined>;
+  createCliente(scope: RequestScope, cliente: InsertCliente): Promise<Cliente>;
+  updateCliente(scope: RequestScope, id: number, cliente: Partial<InsertCliente>): Promise<Cliente | undefined>;
+  deleteCliente(scope: RequestScope, id: number): Promise<void>;
+  getStats(scope: RequestScope): Promise<{
     totalVendas: number;
     totalKg: number;
     totalValor: number;
@@ -97,22 +109,32 @@ export interface IStorage {
 }
 
 export const storage: IStorage = {
-  async getVendas() {
-    const { data, error } = await db().from('vendas').select('*').order('data', { ascending: false });
+  async getVendas(scope) {
+    const scopedQuery = withScope(db().from('vendas').select('*'), scope);
+    const { data, error } = await scopedQuery.order('data', { ascending: false });
     if (error) throw error;
     return (data || []).map(mapVenda);
   },
-  async getVenda(id) {
-    const { data, error } = await db().from('vendas').select('*').eq('id', id).single();
+  async getVenda(scope, id) {
+    const scopedQuery = withScope(db().from('vendas').select('*').eq('id', id), scope);
+    const { data, error } = await scopedQuery.single();
     if (error) return undefined;
     return data ? mapVenda(data) : undefined;
   },
-  async createVenda(venda) {
-    const { data, error } = await db().from('vendas').insert(toVendaRow(venda)).select().single();
+  async createVenda(scope, venda) {
+    const { data, error } = await db()
+      .from('vendas')
+      .insert({
+        ...toVendaRow(venda),
+        user_id: scope.userId,
+        empresa_id: scope.empresaId ?? null,
+      })
+      .select()
+      .single();
     if (error) throw error;
     return mapVenda(data);
   },
-  async updateVenda(id, venda) {
+  async updateVenda(scope, id, venda) {
     const row: any = {};
     if (venda.data !== undefined) row.data = venda.data;
     if (venda.marca !== undefined) row.marca = venda.marca;
@@ -128,50 +150,59 @@ export const storage: IStorage = {
     if (venda.emitirNota !== undefined) row.emitir_nota = venda.emitirNota;
     if (venda.observacoes !== undefined) row.observacoes = venda.observacoes;
     if (venda.parcelas !== undefined) row.parcelas = venda.parcelas;
-    const { data, error } = await db().from('vendas').update(row).eq('id', id).select().single();
+    const scopedQuery = withScope(db().from('vendas').update(row).eq('id', id), scope);
+    const { data, error } = await scopedQuery.select().single();
     if (error) return undefined;
     return data ? mapVenda(data) : undefined;
   },
-  async deleteVenda(id) {
-    await db().from('vendas').delete().eq('id', id);
+  async deleteVenda(scope, id) {
+    const scopedQuery = withScope(db().from('vendas').delete().eq('id', id), scope);
+    await scopedQuery;
   },
-  async getClientes() {
-    const { data, error } = await db().from('clientes').select('*');
+  async getClientes(scope) {
+    const scopedQuery = withScope(db().from('clientes').select('*'), scope);
+    const { data, error } = await scopedQuery;
     if (error) throw error;
     return (data || []).map(mapCliente);
   },
-  async getCliente(id) {
-    const { data, error } = await db().from('clientes').select('*').eq('id', id).single();
+  async getCliente(scope, id) {
+    const scopedQuery = withScope(db().from('clientes').select('*').eq('id', id), scope);
+    const { data, error } = await scopedQuery.single();
     if (error) return undefined;
     return data ? mapCliente(data) : undefined;
   },
-  async createCliente(cliente) {
+  async createCliente(scope, cliente) {
     const row = {
       nome: cliente.nome,
       cpf_cnpj: cliente.cpfCnpj ?? null,
       telefone: cliente.telefone ?? null,
       endereco: cliente.endereco ?? null,
+      user_id: scope.userId,
+      empresa_id: scope.empresaId ?? null,
     };
     const { data, error } = await db().from('clientes').insert(row).select().single();
     if (error) throw error;
     return mapCliente(data);
   },
-  async updateCliente(id, cliente) {
+  async updateCliente(scope, id, cliente) {
     const row: any = {};
     if (cliente.nome !== undefined) row.nome = cliente.nome;
     if (cliente.cpfCnpj !== undefined) row.cpf_cnpj = cliente.cpfCnpj;
     if (cliente.telefone !== undefined) row.telefone = cliente.telefone;
     if (cliente.endereco !== undefined) row.endereco = cliente.endereco;
-    const { data, error } = await db().from('clientes').update(row).eq('id', id).select().single();
+    const scopedQuery = withScope(db().from('clientes').update(row).eq('id', id), scope);
+    const { data, error } = await scopedQuery.select().single();
     if (error) return undefined;
     return data ? mapCliente(data) : undefined;
   },
-  async deleteCliente(id) {
-    await db().from('clientes').delete().eq('id', id);
+  async deleteCliente(scope, id) {
+    const scopedQuery = withScope(db().from('clientes').delete().eq('id', id), scope);
+    await scopedQuery;
   },
-  async getStats() {
-    const { data: todasVendas } = await db().from('vendas').select('*');
-    const vendas = (todasVendas || []).map(mapVenda);
+  async getStats(scope) {
+    const scopedQuery = withScope(db().from('vendas').select('*'), scope);
+    const { data: todasVendas } = await scopedQuery;
+    const vendas: Venda[] = (todasVendas || []).map(mapVenda);
     const totalVendas = vendas.length;
     const totalKg = vendas.reduce((s, v) => s + (v.quantidadeKg || 0), 0);
     const totalValor = vendas.reduce((s, v) => s + (v.valorTotal || 0), 0);
