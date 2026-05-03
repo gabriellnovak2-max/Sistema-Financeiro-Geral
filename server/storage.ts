@@ -78,11 +78,22 @@ export interface RequestScope {
   empresaId?: string;
 }
 
-function withScope(query: any, scope: RequestScope) {
+export function buildScopeFilter(scope: RequestScope) {
+  const filters = [`user_id.eq.${scope.userId}`];
+
   if (scope.empresaId) {
-    return query.eq("empresa_id", scope.empresaId);
+    filters.unshift(`empresa_id.eq.${scope.empresaId}`);
   }
-  return query.eq("user_id", scope.userId);
+
+  // Mantem visiveis os registros criados antes da migration de escopo
+  // ate existir um backfill seguro de ownership/tenant.
+  filters.push("and(user_id.is.null,empresa_id.is.null)");
+
+  return filters.join(",");
+}
+
+function withScope(query: any, scope: RequestScope) {
+  return query.or(buildScopeFilter(scope));
 }
 
 export interface IStorage {
