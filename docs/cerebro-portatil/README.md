@@ -10,7 +10,10 @@ Documentação das 4 camadas que tornam o cérebro do Gabriel portátil entre os
 | [02-user-rules.md](./02-user-rules.md) | User Rules da conta Cursor (sincroniza sozinho) |
 | [03-mcp-memory-server.md](./03-mcp-memory-server.md) | MCP Memory Server (memória persistente) |
 | [04-memoir-cli.md](./04-memoir-cli.md) | memoir-cli (backup/restore configs IA) |
-| [ROADMAP-49-ETAPAS-V2-SUPERPODERES.md](./ROADMAP-49-ETAPAS-V2-SUPERPODERES.md) | Roadmap oficial 55 etapas |
+| [ROADMAP-CANONICO-59-MAIS.md](./ROADMAP-CANONICO-59-MAIS.md) | Fonte oficial unica (59+) |
+| [MATRIZ-EQUIVALENCIA-ROADMAP.md](./MATRIZ-EQUIVALENCIA-ROADMAP.md) | Equivalencia antigo (49/52/55) -> canonico |
+| [CHECKLIST-ANTI-PULO-DE-ETAPA.md](./CHECKLIST-ANTI-PULO-DE-ETAPA.md) | Checklist obrigatorio de bloqueio |
+| [ROADMAP-49-ETAPAS-V2-SUPERPODERES.md](./ROADMAP-49-ETAPAS-V2-SUPERPODERES.md) | Roadmap legado detalhado (preservado) |
 | [inventario-completo-programas.md](./inventario-completo-programas.md) | Lista de todos os programas instalados |
 
 ## Setup rápido em PC novo
@@ -39,3 +42,10 @@ memoir pull
 3. `02-user-rules.md`
 4. `03-mcp-memory-server.md`
 5. `04-memoir-cli.md`
+
+## Regra oficial de governanca de roadmap
+
+- **Fonte oficial unica:** `ROADMAP-CANONICO-59-MAIS.md`
+- **Mapeamento historico obrigatorio:** `MATRIZ-EQUIVALENCIA-ROADMAP.md`
+- **Bloqueio anti-pulo:** `CHECKLIST-ANTI-PULO-DE-ETAPA.md`
+- O arquivo `ROADMAP-49-ETAPAS-V2-SUPERPODERES.md` permanece preservado como legado/detalhamento e nao deve ser removido.

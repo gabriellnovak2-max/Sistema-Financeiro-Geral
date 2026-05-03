@@ -30,7 +30,7 @@ ERP em construção da **Patrocínio Café** (Goiânia-GO).
 6. **SEMPRE** rodar `npm run build` E `npm run check` antes de marcar tarefa como concluída.
 7. **SEMPRE** perguntar antes de instalar dependência nova — **NUNCA** "guess" para resolver erro.
 8. Se encontrar credential mismatch ou erro de auth, **PARAR** e abrir PR descrevendo o problema. **NUNCA** "consertar" deletando recursos.
-9. **SEMPRE** seguir Ordem Sagrada do roadmap (`docs/cerebro-portatil/ROADMAP-49-ETAPAS-V2-SUPERPODERES.md`). Não pular fase.
+9. **SEMPRE** seguir Ordem Sagrada do roadmap (`docs/cerebro-portatil/ROADMAP-CANONICO-59-MAIS.md`). Não pular fase.
 10. **SEMPRE** que afirmar fato externo (alíquota fiscal, prazo SEFAZ, preço de API), citar fonte oficial atual.
 
 ## Comandos canônicos
@@ -89,7 +89,9 @@ ERP em construção da **Patrocínio Café** (Goiânia-GO).
 - `docs/cerebro/03-alertas-criticos-fase1.md` — alertas críticos
 - `docs/cerebro/04-protocolo-pesquisa-antes.md` — pesquisar antes de alterar
 - `docs/cerebro-fiscal.md` — cérebro fiscal completo (NF-e, NFC-e, Reforma Tributária)
-- `docs/cerebro-portatil/ROADMAP-49-ETAPAS-V2-SUPERPODERES.md` — roadmap completo das 55 etapas
+- `docs/cerebro-portatil/ROADMAP-CANONICO-59-MAIS.md` — roadmap canônico oficial (59+)
+- `docs/cerebro-portatil/MATRIZ-EQUIVALENCIA-ROADMAP.md` — equivalência legado 49/52/55 -> canônico
+- `docs/cerebro-portatil/ROADMAP-49-ETAPAS-V2-SUPERPODERES.md` — roadmap legado detalhado (preservado)
 - `.cursor/BUGBOT.md` — regras de revisão automática (Bugbot)
 - `.cursor/rules/*.mdc` — regras técnicas por domínio
 

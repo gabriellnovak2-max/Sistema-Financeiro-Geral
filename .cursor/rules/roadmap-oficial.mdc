@@ -1,12 +1,13 @@
 ---
-description: Roadmap oficial de 55 etapas do ERP Patrocínio Café. Ordem Sagrada inegociável.
+description: Roadmap oficial canônico 59+ do ERP Patrocínio Café. Ordem Sagrada inegociável.
 globs:
 alwaysApply: true
 ---
 
-# Roadmap Oficial — 55 Etapas
+# Roadmap Oficial — Canônico 59+
 
-Roadmap completo em `docs/cerebro-portatil/ROADMAP-49-ETAPAS-V2-SUPERPODERES.md`.
+Fonte oficial única em `docs/cerebro-portatil/ROADMAP-CANONICO-59-MAIS.md`.
+Matriz de equivalência em `docs/cerebro-portatil/MATRIZ-EQUIVALENCIA-ROADMAP.md`.
 
 ## Ordem Sagrada (NUNCA inverter)
 
@@ -27,5 +28,5 @@ Roadmap completo em `docs/cerebro-portatil/ROADMAP-49-ETAPAS-V2-SUPERPODERES.md`
 
 ## Antes de codar qualquer tarefa
 
-Cursor tem que olhar o roadmap, identificar em qual etapa tá, e confirmar com o Gabriel:
+Cursor tem que olhar o roadmap canônico, identificar em qual etapa tá, e confirmar com o Gabriel:
 > "Visionário, isso aqui é etapa X.Y do roadmap. Tô na ordem certa?"

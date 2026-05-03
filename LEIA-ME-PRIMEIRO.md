@@ -99,7 +99,11 @@ Ler detalhes em `docs/cerebro-portatil/`.
 
 ## 🛣️ Roadmap oficial
 
-**55 etapas** em `docs/cerebro-portatil/ROADMAP-49-ETAPAS-V2-SUPERPODERES.md`.
+**Fonte oficial única (59+)** em `docs/cerebro-portatil/ROADMAP-CANONICO-59-MAIS.md`.
+
+Matriz de equivalência: `docs/cerebro-portatil/MATRIZ-EQUIVALENCIA-ROADMAP.md`  
+Checklist anti-pulo: `docs/cerebro-portatil/CHECKLIST-ANTI-PULO-DE-ETAPA.md`  
+Roadmap legado detalhado (preservado): `docs/cerebro-portatil/ROADMAP-49-ETAPAS-V2-SUPERPODERES.md`
 
 **Ordem Sagrada (NUNCA inverter):**
 1. Architecture
